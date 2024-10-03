@@ -11,12 +11,12 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "validation")
+@Table(name = "validations")
 public class Validation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private Instant creation;
     private Instant expired;
     private Instant activation;
@@ -27,7 +27,7 @@ public class Validation {
     public Validation() {
     }
     
-    public Validation(Long id, Instant creation, Instant expired, Instant activation, String code, User user) {
+    public Validation(Integer id, Instant creation, Instant expired, Instant activation, String code, User user) {
         this.id = id;
         this.creation = creation;
         this.expired = expired;
@@ -36,11 +36,11 @@ public class Validation {
         this.user = user;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -83,7 +83,4 @@ public class Validation {
     public void setUser(User user) {
         this.user = user;
     }
-
-    
-
 }

@@ -8,6 +8,6 @@ import Mboussaid.laFactureFacile.Models.ERole;
 import Mboussaid.laFactureFacile.Models.Role;
 
 
-public interface RoleRepository  extends JpaRepository<Role, Long>{
+public interface RoleRepository  extends JpaRepository<Role, Integer>{
     Optional<Role> findByName(ERole name);
 }

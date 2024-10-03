@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import Mboussaid.laFactureFacile.Models.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByName(String username);
 

@@ -30,7 +30,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     @NotEmpty(message = "Name is mandatory")
     private String name;
     @NotEmpty(message = "Email is mandatory")
@@ -41,9 +41,9 @@ public class User {
     @NotEmpty(message = "Role is mandatory")
     @NotEmpty(message = "Role is mandatory")
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "utilisateur_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "roles_id"))
     private Set<Role> roles ;
     @NotEmpty(message = "IdActivation is mandatory")
-    private String idActivation;
+    private String id_Activation;
     private boolean actif;
 }
