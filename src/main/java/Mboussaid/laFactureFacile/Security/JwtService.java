@@ -41,6 +41,9 @@ public class JwtService {
         this.jwtRepository = jwtRepository;
     }
 
+    public JwtService() {
+    }
+
     public Map<String, String> generate(String username) {
         User user = (User) this.userService.loadUserByUsername(username);
         this.disableToken(user);

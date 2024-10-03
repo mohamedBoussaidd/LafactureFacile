@@ -30,6 +30,11 @@ public class ValidationService {
         this.validationRepository = validationRepository;
         this.notificationService = notificationService;
     }
+    
+
+    public ValidationService() {
+    }
+
 
     public ResponseEntity<?> addValidation(User user) {
         if (this.validationRepository.findByUser(user).isPresent()) {

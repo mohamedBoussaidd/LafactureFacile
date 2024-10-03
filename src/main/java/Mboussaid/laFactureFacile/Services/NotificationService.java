@@ -17,6 +17,11 @@ public class NotificationService {
     public NotificationService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
+    
+
+    public NotificationService() {
+    }
+
 
     public void sendNotificationActivation(Validation validation) {
         SimpleMailMessage mail = new SimpleMailMessage();

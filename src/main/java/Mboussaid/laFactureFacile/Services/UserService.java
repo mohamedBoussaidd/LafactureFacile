@@ -43,8 +43,9 @@ public class UserService implements UserDetailsService {
         this.validationService = validationService;
         this.encoder = encoder;
     }
+
     public UserService(){
-        
+
     }
 
     public List<User> getAll() {
@@ -59,7 +60,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
-    public User getUserById(Long id) {
+    public User getUserById(Integer id) {
         return userRepository.findById(id).orElse(null);
     }
 
@@ -84,7 +85,7 @@ public class UserService implements UserDetailsService {
         userForRegister.setRoles(roles);
         /* Creation de l id d'activation */
         String idActivation = UUID.randomUUID().toString();
-        userForRegister.setIdActivation(idActivation);
+        userForRegister.setId_Activation(idActivation);
         /* sauvegarde de l'utilisateur */
         userForRegister = userRepository.save(userForRegister);
         this.validationService.addValidation(userForRegister);

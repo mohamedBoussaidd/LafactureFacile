@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.Validation;
 
-public interface ValidationRepository extends JpaRepository<Validation, Long> {
+public interface ValidationRepository extends JpaRepository<Validation, Integer> {
     Optional<Validation> findByCode(String code);
     Optional<Validation> findByUser(User user);
 
