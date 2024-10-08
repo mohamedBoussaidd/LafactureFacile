@@ -33,15 +33,12 @@ public class JwtService {
 
     private static final String BEARER = "bearer";
     private final String ENCRIPTION_key = "8bd3ef239b58e5d372958eda64b775a1458da6335f6c35855e4c7ace48141f7e";
-    private UserService userService;
-    private JwtRepository jwtRepository;
+    private final UserService userService;
+    private final JwtRepository jwtRepository;
 
     public JwtService(UserService userService, JwtRepository jwtRepository) {
         this.userService = userService;
         this.jwtRepository = jwtRepository;
-    }
-
-    public JwtService() {
     }
 
     public Map<String, String> generate(String username) {

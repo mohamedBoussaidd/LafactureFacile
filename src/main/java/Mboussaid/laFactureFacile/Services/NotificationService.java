@@ -12,16 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationService {
 
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     public NotificationService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
-    
-
-    public NotificationService() {
-    }
-
 
     public void sendNotificationActivation(Validation validation) {
         SimpleMailMessage mail = new SimpleMailMessage();
@@ -30,7 +25,7 @@ public class NotificationService {
         mail.setSubject("Votre code d'activation");
         String lien = "http://localhost:4200/activation";
         String msg = String.format(
-                "Bonjour %s,\n\nVotre code d'activation est : %s\n\n pour activer votre compte cliquez sur le lien " + lien +"\n\n Si le lien ne fonctionne pas il suffit de le copier et le coller dans votre navigateur \n\nCordialement,\nL'équipe Calendrier",
+                "Bonjour %s,\n\nMerci de vous être inscrit sur MaFacture!\n\n Code de validation : %s\n\n Voici les étapes à suivre pour valider votre compte :\n\n1. Connecter vous à votre compte sur " + lien +"\n\n 2.Entrez le code de validation ci-dessus dans l'interface de verification.\n\n3. Cliquer sur\'Valider\'Si vous n'avez pas demandé cette inscription, veuillez ignorer cet e-mail.\n\nNous vous remercions de faire partie de notre communauté et restons à votre disposition pour toute question ou assistance.\n\nCordialement,\nL'équipe MaFacture",
                 validation.getUser().getName(), validation.getCode());
 
         mail.setText(msg);
