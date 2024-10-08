@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -22,6 +23,7 @@ public class Validation {
     private Instant activation;
     private String code;
     @OneToOne( cascade = {CascadeType.MERGE, CascadeType.DETACH})
+    @JoinColumn(name = "user_entity_id")
     private User user;
 
     public Validation() {

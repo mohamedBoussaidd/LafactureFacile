@@ -5,9 +5,10 @@ import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import Mboussaid.laFactureFacile.Models.Jwt;
-
+@Repository
 public interface JwtRepository extends JpaRepository<Jwt, Integer> {
     Optional<Jwt> findByValueAndIsExpiredAndIsBlackListed(String value, boolean isExpired, boolean isBlackListed);
 

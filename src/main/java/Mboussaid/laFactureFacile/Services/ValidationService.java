@@ -23,18 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ValidationService {
 
     private static final Instant NOW = Instant.now();
-    private ValidationRepository validationRepository;
-    private NotificationService notificationService;
+    private final ValidationRepository validationRepository;
+    private final NotificationService notificationService;
 
     public ValidationService(ValidationRepository validationRepository, NotificationService notificationService) {
         this.validationRepository = validationRepository;
         this.notificationService = notificationService;
     }
-    
-
-    public ValidationService() {
-    }
-
 
     public ResponseEntity<?> addValidation(User user) {
         if (this.validationRepository.findByUser(user).isPresent()) {

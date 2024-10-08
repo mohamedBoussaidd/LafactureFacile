@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,11 +30,11 @@ import Mboussaid.laFactureFacile.Repository.ValidationRepository;
 @Service
 public class UserService implements UserDetailsService {
 
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private ValidationRepository validationRepository;
-    private ValidationService validationService;
-    private BCryptPasswordEncoder encoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ValidationRepository validationRepository;
+    private final ValidationService validationService;
+    private final BCryptPasswordEncoder encoder;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, ValidationRepository validationRepository,
             ValidationService validationService, BCryptPasswordEncoder encoder) {
@@ -42,10 +43,6 @@ public class UserService implements UserDetailsService {
         this.validationRepository = validationRepository;
         this.validationService = validationService;
         this.encoder = encoder;
-    }
-
-    public UserService(){
-
     }
 
     public List<User> getAll() {
@@ -76,7 +73,7 @@ public class UserService implements UserDetailsService {
         userForRegister.setName(user.getName());
         userForRegister.setEmail(user.getEmail());
         /* encodage du mot de passe */
-        userForRegister.setPassword(this.encoder.encode(user.getPass()));
+        userForRegister.setPassword(this.encoder.encode(user.getPassword()));
         /* Création de role */
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
@@ -123,9 +120,9 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) this.userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .orElseThrow(() ->  new UsernameNotFoundException("User not found"));
     }
 
     public ResponseEntity<?> modifyPassword(Map<String, String> parameters) {

@@ -3,17 +3,17 @@ package Mboussaid.laFactureFacile.DTO.Request;
 public class UserRequest {
     private String name;
     private String email;
-    private String pass;
-    private String passwordConfirm;
+    private String password;
+    private String confirmPassword;
 
     public UserRequest() {
     }
 
-    public UserRequest(String name, String email, String pass, String passwordConfirm) {
+    public UserRequest(String name, String email, String password, String confirmPassword) {
         this.name = name;
         this.email = email;
-        this.pass = pass;
-        this.passwordConfirm = passwordConfirm;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
     }
 
     public String getName() {
@@ -24,23 +24,23 @@ public class UserRequest {
         return this.email;
     }
 
-    public String getPasswordConfirm() {
-        return this.passwordConfirm;
+    public String getconfirmPassword() {
+        return this.confirmPassword;
     }
 
-    public String getPass() {
-        return this.pass;
+    public String getPassword() {
+        return this.password;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
+    public void setconfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

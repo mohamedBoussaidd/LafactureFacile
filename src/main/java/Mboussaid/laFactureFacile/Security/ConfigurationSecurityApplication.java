@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,21 +24,24 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import Mboussaid.laFactureFacile.Services.UserService;
 
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-
 
 @Configuration
 @EnableWebSecurity
+@EnableScheduling
 public class ConfigurationSecurityApplication {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtFilter jwtFilter;
+    private final UserService UserService;
 
-    public ConfigurationSecurityApplication(BCryptPasswordEncoder bCryptPasswordEncoder, JwtFilter jwtFilter) {
+    public ConfigurationSecurityApplication(BCryptPasswordEncoder bCryptPasswordEncoder, JwtFilter jwtFilter,
+            UserService UserService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtFilter = jwtFilter;
+        this.UserService = UserService;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity HttpSecurity) throws Exception {
         return HttpSecurity
@@ -45,12 +49,11 @@ public class ConfigurationSecurityApplication {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers(POST, "addUser").permitAll()
-                                .requestMatchers(POST, "activation").permitAll()
-                                .requestMatchers(POST, "connexion").permitAll()
-                                .requestMatchers(POST, "modifyPassword").permitAll()
-                                .requestMatchers(POST, "newPassword").permitAll()
-                                .requestMatchers(GET, "test1").permitAll()
+                                .requestMatchers(POST, "/connexion").permitAll()
+                                .requestMatchers(POST, "/addUser").permitAll()
+                                .requestMatchers(POST, "/activation").permitAll()
+                                .requestMatchers(POST, "/modifyPassword").permitAll()
+                                .requestMatchers(POST, "/newPassword").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -77,7 +80,7 @@ public class ConfigurationSecurityApplication {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new UserService();
+        return UserService;
     }
 
     @Bean
