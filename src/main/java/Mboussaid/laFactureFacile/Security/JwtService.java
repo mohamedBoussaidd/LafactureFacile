@@ -68,6 +68,12 @@ public class JwtService {
         Date expirationDate = this.getClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
     }
+    // a perfection entre les deux fonction expired et valide il ya moyen de faire une seule fonction
+    public boolean isTokenValid(String token) {
+        Jwt jwt = this.jwtRepository.findByValue(token).get();
+        Date expirationDate = this.getClaim(jwt.getValue(), Claims::getExpiration);
+        return expirationDate.after(new Date());
+    }
 
     private void disableToken(User user) {
         final List<Jwt> jwtList = this.jwtRepository.findUserToken(user.getEmail()).peek(jwt -> {
@@ -86,9 +92,8 @@ public class JwtService {
                 "name", user.getName(),
                 "id", user.getId(),
                 Claims.EXPIRATION, new Date(expirationTime),
-                Claims.SUBJECT, user.getEmail(), 
-                "role", user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList())
-                );
+                Claims.SUBJECT, user.getEmail(),
+                "role", user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()));
 
         final String bearer = Jwts.builder()
                 .claims(claims)
