@@ -2,6 +2,7 @@ package Mboussaid.laFactureFacile.Security;
 
 import java.io.IOException;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,19 +19,16 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class JwtFilter extends OncePerRequestFilter {
-    private UserService userService;
-    private JwtService jwtService;
+    private final UserService userService;
+    private final JwtService jwtService;
 
     public JwtFilter(UserService userService, JwtService jwtService) {
         this.userService = userService;
         this.jwtService = jwtService;
     }
 
-    public JwtFilter() {
-    }
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         String token = null;
         Jwt jwtInBdd = null;
@@ -45,6 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
             username = jwtService.extractUsername(token);
         }
         if (!isTokenExpired
+                && jwtInBdd != null
                 && jwtInBdd.getUser().getEmail().equals(username)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails user = userService.loadUserByUsername(username);

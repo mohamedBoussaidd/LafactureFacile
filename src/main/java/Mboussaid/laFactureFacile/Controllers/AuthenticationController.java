@@ -52,6 +52,10 @@ public class AuthenticationController {
     public ResponseEntity<?> newPassword(@RequestBody Map<String, String> parameters) {
         return this.userService.newPassword(parameters);
     }
+    @PostMapping("tokenValidation")
+    public boolean tokenValidation(@RequestBody String token) {
+        return this.jwtService.isTokenValid(token);
+    }
 
     @PostMapping("disconnection")
     public void disconnection() {
