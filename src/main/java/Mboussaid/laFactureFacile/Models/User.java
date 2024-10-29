@@ -52,6 +52,9 @@ public class User implements UserDetails{
     @NotEmpty(message = "IdActivation is mandatory")
     private String id_Activation;
     private boolean actif;
+    private String adresse;
+    private String siret;
+    private String telephone;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(this.roles.iterator().next().getName().toString()));
