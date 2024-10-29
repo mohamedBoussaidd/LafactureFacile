@@ -1,0 +1,1 @@
+INSERT INTO "user_roles" (user_entity_id, roles_id) VALUES ((SELECT id FROM public."user_entity" WHERE name='admin'), (SELECT id FROM public."roles" WHERE name='ROLE_ADMIN'));
