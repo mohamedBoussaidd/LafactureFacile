@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Setter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 // import java.time.Instant;
 import java.util.List;
 
@@ -26,10 +28,14 @@ public class Invoice {
     private String sellerEmail;
     private String sellerAddress;
     private String sellerSiret;
+    private String sellerPhone;
     private String customerName;
     private String customerEmail;
+    private String customerAddress;
+    private String customerPhone;
     private String creationDate;
     private String expirationDate;
     private List<Items> items;
-    private Integer amount;
+    private BigDecimal amountHT;
+    private BigDecimal amountTTC;
 }
