@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ItemsRequest {
 
+    private String description;
     private Integer priceHT;
     private Integer priceTTC;
     private Integer tax;

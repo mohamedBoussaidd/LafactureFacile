@@ -1,5 +1,7 @@
 package Mboussaid.laFactureFacile.Models;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,8 +21,9 @@ public class Items {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer priceHT;
-    private Integer priceTTC;
-    private Integer tax;
+    private String name;
+    private BigDecimal priceHT;
+    private BigDecimal priceTTC;
+    private BigDecimal tax;
     private Integer quantity;
 }
