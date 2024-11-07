@@ -1,8 +1,6 @@
 package Mboussaid.laFactureFacile.Services;
 
 import org.apache.tomcat.util.digester.ArrayStack;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -11,9 +9,7 @@ import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
-import Mboussaid.laFactureFacile.Services.PdfService;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -33,27 +29,25 @@ import java.util.Optional;
 @Service
 public class InvoiceService {
         private final Path root = Paths.get("src/main/resources/telechargements");
-        private final FileStorageService fileStorageService;
+        // private final FileStorageService fileStorageService;
         private final UserRepository userRepository;
-        private final PdfService pdfService;
+        // private final PdfService pdfService;
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
         public InvoiceService(FileStorageService fileStorageService, UserRepository userRepository,
                         PdfService pdfService) {
-                this.fileStorageService = fileStorageService;
                 this.userRepository = userRepository;
-                this.pdfService = pdfService;
         }
 
-        public ResponseEntity<?> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
+        public Map<String, Object> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
 
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 User userImpl = (User) auth.getPrincipal();
                 Optional<User> user = userRepository.findById(userImpl.getId());
 
                 if (user.isEmpty()) {
-                        return ResponseEntity.badRequest().body("Utilisateur non trouvé");
+                        return null;
                 }
 
                 List<Items> items = new ArrayStack<>();
@@ -86,12 +80,18 @@ public class InvoiceService {
                                 .build();
                 invoice.setInvoiceNumber(getNumberInvoice(invoice));
                 User principalUser = user.get();
-                File pdfFile = this.pdfService.createPdf(invoice, principalUser);
-                fileStorageService.storeFile(pdfFile);
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Facture créée avec succès");
-                response.put("filename", pdfFile.getName());
-                return new ResponseEntity<>(response, HttpStatus.CREATED);
+                Map<String, Object> result = new HashMap<>();
+                result.put("utilisateur", principalUser);
+                result.put("invoice", invoice);
+                return result;
+                // invoice.setInvoiceNumber(getNumberInvoice(invoice));
+                // User principalUser = user.get();
+                // File pdfFile = this.pdfService.createPdf(invoice, principalUser);
+                // fileStorageService.storeFile(pdfFile);
+                // Map<String, String> response = new HashMap<>();
+                // response.put("message", "Facture créée avec succès");
+                // response.put("filename", pdfFile.getName());
+                // return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
 
         public String getNumberInvoice(Invoice invoice) {
