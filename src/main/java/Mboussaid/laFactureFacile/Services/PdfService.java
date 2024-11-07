@@ -90,7 +90,6 @@ public class PdfService {
         }
 
         public Table infoSenderTable(Invoice invoice) {
-                // information du vendeur
                 float colWidht[] = {
                                 100, 310
                 };
