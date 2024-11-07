@@ -56,6 +56,9 @@ jobs:
             port: 22
             source: "compose.yml"
             target: /opt/applications/lff/${{env.IMAGE}}
+      - name: Create Docker network
+        run: |
+          docker network create lafacturefacile-network || echo "Network already exists"
       - name: execute commands
         uses: appleboy/ssh-action@v1.1.0
         with:
