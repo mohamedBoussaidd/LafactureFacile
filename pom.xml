@@ -127,7 +127,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>mohamedd69/${project.artifactId}:{project.version}</name>
+						<name>mohamedd69/${project.artifactId}:latest</name>
 						<env>
 							<BP_JVM_VERSION>17</BP_JVM_VERSION>
 						</env>
