@@ -39,7 +39,7 @@ public class User implements UserDetails{
     private Integer id;
     @NotEmpty(message = "Name is mandatory")
     private String name;
-    @NotEmpty(message = "Email is mandatory")
+    @NotEmpty(message = "First Name is mandatory")
     @Email(message = "Email should be valid")
     private String email;
     @NotEmpty(message = "Password is mandatory")
@@ -53,8 +53,11 @@ public class User implements UserDetails{
     private String id_Activation;
     private boolean actif;
     private String adresse;
+    private String city;
+    private String postalcode;
     private String siret;
     private String telephone;
+    private String firstname;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(this.roles.iterator().next().getName().toString()));

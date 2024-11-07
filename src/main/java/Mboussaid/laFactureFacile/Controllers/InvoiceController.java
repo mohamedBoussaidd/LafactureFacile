@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
-import Mboussaid.laFactureFacile.Services.FileStorageService;
 import Mboussaid.laFactureFacile.Services.InvoiceService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
@@ -20,21 +20,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
-    private final FileStorageService fileStorageService;
 
-    public InvoiceController(InvoiceService invoiceService, FileStorageService fileStorageService) {
+    public InvoiceController(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping("/addInvoice")
     public ResponseEntity<?> addInvoice(@RequestBody InvoiceRequest invoice) throws IOException {
         return this.invoiceService.createInvoice(invoice);
     }
-    @GetMapping("getInvoice")
+    @GetMapping("getInvoice/{filename}")
     @ResponseBody
-    public  ResponseEntity<Resource> displayInvoice() {
-        Resource file = this.invoiceService.displayInvoice();
+    public  ResponseEntity<Resource> displayInvoice(@PathVariable String filename) {
+        Resource file = this.invoiceService.displayInvoice(filename);
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
                 .body(file);

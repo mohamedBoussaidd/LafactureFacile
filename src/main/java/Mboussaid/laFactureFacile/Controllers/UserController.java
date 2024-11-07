@@ -45,8 +45,8 @@ public class UserController {
 
     // update user
     @PostMapping("updateUser")
-    public User updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
+    public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest) {
+        return userService.updateUser(userRequest);
     }
 
     // delete user
