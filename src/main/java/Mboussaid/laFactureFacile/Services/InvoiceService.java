@@ -35,7 +35,7 @@ public class InvoiceService {
         private final Path root = Paths.get("src/main/resources/telechargements");
         private final FileStorageService fileStorageService;
         private final UserRepository userRepository;
-        private PdfService pdfService;
+        private final PdfService pdfService;
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 

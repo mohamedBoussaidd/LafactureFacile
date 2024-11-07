@@ -1,6 +1,6 @@
 services:
   lafacturefacile:
-    image: mohamedd69/lafacturefacile:0.0.1-SNAPSHOT
+    image: mohamedd69/lafacturefacile
     container_name: lafacturefacile-backend
     restart: always
     environment:
