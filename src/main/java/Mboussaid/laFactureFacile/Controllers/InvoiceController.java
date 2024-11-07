@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ public class InvoiceController {
     private final FileStorageService fileStorageService;
     private final PdfService pdfService;
 
+    @Autowired
     public InvoiceController(InvoiceService invoiceService, FileStorageService fileStorageService,
             PdfService pdfService) {
         this.invoiceService = invoiceService;
@@ -46,7 +48,7 @@ public class InvoiceController {
         User principalUserResulat = (User) mapresult.get("user");
         File pdfFile = this.pdfService.createPdf(invoiceResult, principalUserResulat);
         fileStorageService.storeFile(pdfFile);
-        
+
         Map<String, String> response = new HashMap<>();
         response.put("message", "Facture créée avec succès");
         response.put("filename", pdfFile.getName());
