@@ -11,6 +11,7 @@ import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
+import Mboussaid.laFactureFacile.Services.PdfService;
 
 import java.io.File;
 import java.io.IOException;
