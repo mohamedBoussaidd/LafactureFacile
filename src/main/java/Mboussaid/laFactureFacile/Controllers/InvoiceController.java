@@ -32,7 +32,6 @@ public class InvoiceController {
     private final FileStorageService fileStorageService;
     private final PdfService pdfService;
 
-    @Autowired
     public InvoiceController(InvoiceService invoiceService, FileStorageService fileStorageService,
             PdfService pdfService) {
         this.invoiceService = invoiceService;
