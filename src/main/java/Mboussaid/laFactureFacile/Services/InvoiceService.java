@@ -35,8 +35,7 @@ public class InvoiceService {
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
-        public InvoiceService(FileStorageService fileStorageService, UserRepository userRepository,
-                        PdfService pdfService) {
+        public InvoiceService( UserRepository userRepository) {
                 this.userRepository = userRepository;
         }
 
