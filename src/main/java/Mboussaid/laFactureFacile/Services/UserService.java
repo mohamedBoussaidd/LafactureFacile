@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,7 +36,8 @@ public class UserService implements UserDetailsService {
     private final ValidationService validationService;
     private final BCryptPasswordEncoder encoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, ValidationRepository validationRepository,
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+            ValidationRepository validationRepository,
             ValidationService validationService, BCryptPasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -89,13 +92,24 @@ public class UserService implements UserDetailsService {
                 "Félicitation votre compte est créé. Un email vous a été envoyé. Veuillez vérifier votre boite de réception."));
     }
 
-    public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getId()).orElse(null);
-        existingUser.setName(user.getName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(user.getPassword());
-        existingUser.setRoles(user.getRoles());
-        return userRepository.save(existingUser);
+    // cette fonction ne met pas a jour le mot de passe ni l'email ni les roles
+    public ResponseEntity<?> updateUser(UserRequest userRequest) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userImpl = (User) auth.getPrincipal();
+        Optional<User> optionalUser = userRepository.findById(userImpl.getId());
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("Error: User not found.");
+        }
+        User user = optionalUser.get();
+        user.setName(userRequest.getName());
+        user.setFirstname(userRequest.getFirstname());
+        user.setAdresse(userRequest.getAddress());
+        user.setCity(userRequest.getCity());
+        user.setPostalcode(userRequest.getPostalCode());
+        user.setTelephone(userRequest.getPhone());
+        user.setSiret(userRequest.getSiret());
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(), "User updated successfully"));
     }
 
     public void deleteUser(User user) {
@@ -114,13 +128,14 @@ public class UserService implements UserDetailsService {
         validationRepository.save(validation);
         userRepository.save(UserForActivation);
         return new ResponseEntity<>(
-                new MessageEntity(HttpStatus.CREATED.value(), "Félicitation votre compte est activé"), HttpStatus.CREATED);
+                new MessageEntity(HttpStatus.CREATED.value(), "Félicitation votre compte est activé"),
+                HttpStatus.CREATED);
     }
 
     @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
-                .orElseThrow(() ->  new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public ResponseEntity<?> modifyPassword(Map<String, String> parameters) {

@@ -2,9 +2,7 @@ package Mboussaid.laFactureFacile.Services;
 
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -13,10 +11,8 @@ import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
-import Mboussaid.laFactureFacile.Services.PdfService;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -25,24 +21,14 @@ import java.nio.file.Paths;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
+import java.util.Map;
 import java.util.Optional;
 
-import com.itextpdf.kernel.colors.DeviceRgb;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.borders.Border;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.VerticalAlignment;
 
 @Service
 public class InvoiceService {
@@ -60,7 +46,7 @@ public class InvoiceService {
                 this.pdfService = pdfService;
         }
 
-        public ResponseEntity<String> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
+        public ResponseEntity<?> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
 
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 User userImpl = (User) auth.getPrincipal();
@@ -84,12 +70,12 @@ public class InvoiceService {
                         amountHT = amountHT.add(new BigDecimal(item.getPriceHT()));
                 });
                 Invoice invoice = Invoice.builder()
-                                .sellerName(user.get().getUsername())
+                                .sellerName(user.get().getName() + " " + user.get().getFirstname())
                                 .sellerEmail(user.get().getEmail())
-                                .sellerAddress(user.get().getAdresse())
+                                .sellerAddress(user.get().getAdresse() + "\n " + user.get().getCity() + "\n "
+                                                + user.get().getPostalcode())
                                 .sellerSiret(user.get().getSiret())
                                 .sellerPhone(user.get().getTelephone())
-                                .invoiceNumber(getNumberInvoice(invoiceRequest))
                                 .customerEmail(invoiceRequest.getCustomerEmail())
                                 .customerName(invoiceRequest.getCustomerName())
                                 .creationDate(invoiceRequest.getCreationDate())
@@ -98,17 +84,20 @@ public class InvoiceService {
                                 .amountHT(amountHT)
                                 .amountTTC(amountTTC)
                                 .build();
+                invoice.setInvoiceNumber(getNumberInvoice(invoice));
                 User principalUser = user.get();
                 File pdfFile = this.pdfService.createPdf(invoice, principalUser);
                 fileStorageService.storeFile(pdfFile);
-
-                return ResponseEntity.ok().body("Facture créée: " + HttpStatus.OK);
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Facture créée avec succès");
+                response.put("filename", pdfFile.getName());
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
 
-        public String getNumberInvoice(InvoiceRequest invoice) {
+        public String getNumberInvoice(Invoice invoice) {
                 String actualDate = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 System.out.println(actualDate + invoice.getCustomerName().substring(0, 3));
-                return actualDate + invoice.getCustomerName().substring(0, 3);
+                return actualDate + invoice.getSellerName().substring(0, 3);
         }
 
         public void deleteInvoice() {
@@ -123,8 +112,8 @@ public class InvoiceService {
         public void updateInvoice() {
         }
 
-        public Resource displayInvoice() {
-                String filename = "momo.pdf";
+        public Resource displayInvoice( String filename) {
+                // String filename = "momo2719384209193558121.pdf";
                 try {
                         Path filePath = root.resolve(filename);
                         Resource resource = new UrlResource(filePath.toUri());
