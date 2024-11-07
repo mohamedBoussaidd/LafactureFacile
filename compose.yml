@@ -1,0 +1,15 @@
+services:
+  lafacturefacile:
+    image: mohamedd69/lafacturefacile:0.0.1-SNAPSHOT
+    container_name: lafacturefacile-backend
+    restart: always
+    environment:
+      - spring.datasource.url=${DB_HOST}
+      - spring.datasource.username=${DB_USERNAME}
+      - spring.datasource.password=${DB_PASSWORD}
+    networks:
+      - lafacturefacile-network
+networks:
+  lafacturefacile-network:
+    external: true
+    name: lafacturefacile-network
