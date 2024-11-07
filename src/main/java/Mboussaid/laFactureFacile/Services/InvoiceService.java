@@ -30,13 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 @Service
 public class InvoiceService {
         private final Path root = Paths.get("src/main/resources/telechargements");
         private final FileStorageService fileStorageService;
         private final UserRepository userRepository;
-        private final PdfService pdfService;
+        private PdfService pdfService;
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
@@ -113,7 +112,7 @@ public class InvoiceService {
         public void updateInvoice() {
         }
 
-        public Resource displayInvoice( String filename) {
+        public Resource displayInvoice(String filename) {
                 // String filename = "momo2719384209193558121.pdf";
                 try {
                         Path filePath = root.resolve(filename);
