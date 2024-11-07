@@ -56,9 +56,6 @@ jobs:
             port: 22
             source: "compose.yml"
             target: /opt/applications/lff/${{env.IMAGE}}
-      - name: Create Docker network
-        run: |
-          docker network create lafacturefacile-network || echo "Network already exists"
       - name: execute commands
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -67,7 +64,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           script: |
-            echo DB_URL="${{secrets.DB_HOST}}" > /opt/applications/lff/${{env.IMAGE}}/.env
-            echo DB_USERNAME="${{secrets.DB_USERNAME}}" >> /opt/applications/lff/${{env.IMAGE}}/.env
-            echo DB_PASSWORD="${{secrets.DB_PASSWORD}}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo DB_URL="${{ secrets.DB_HOST }}" > /opt/applications/lff/${{env.IMAGE}}/.env
+            echo DB_USERNAME="${{ secrets.DB_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
