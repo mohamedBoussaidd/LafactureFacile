@@ -33,8 +33,8 @@ jobs:
       - name: Generation et push image
         run: |
           ./mvnw clean package spring-boot:build-image \
-          -Ddocker.publishRegistry.username=${{secret.DCK_USERNAME}} \
-          -Ddocker.publishRegistry.password=${{secret.DCK_PASSWORD}} \
+          -Ddocker.publishRegistry.username=${{secrets.DCK_USERNAME}} \
+          -Ddocker.publishRegistry.password=${{secrets.DCK_PASSWORD}} \
           -Dspring-boot.build-image.publish=true \
           -Dmaven.test.skip=true
   run-container:
