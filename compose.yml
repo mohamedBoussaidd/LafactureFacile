@@ -7,6 +7,7 @@ services:
       - spring.datasource.url=${DB_HOST}
       - spring.datasource.username=${DB_USERNAME}
       - spring.datasource.password=${DB_PASSWORD}
+      - JAVA_TOOL_OPTIONS=-Xss200k
     networks:
       - lafacturefacile-network
 networks:
