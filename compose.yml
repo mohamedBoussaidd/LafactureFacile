@@ -1,5 +1,5 @@
 services:
-  lafacturefacile:
+  backend:
     image: mohamedd69/lafacturefacile
     container_name: lafacturefacile-backend
     restart: always
