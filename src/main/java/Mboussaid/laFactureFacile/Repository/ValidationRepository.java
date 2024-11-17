@@ -13,6 +13,7 @@ import Mboussaid.laFactureFacile.Models.Validation;
 public interface ValidationRepository extends JpaRepository<Validation, Integer> {
     Optional<Validation> findByCode(String code);
     Optional<Validation> findByUser(User user);
+    Optional<Validation> findByUid(String uid);
 
     void deleteAllByExpiredBefore(Instant now);
 }

@@ -1,4 +1,0 @@
-ALTER TABLE "user_entity"
-ADD COLUMN "adresse" VARCHAR(255),
-ADD COLUMN "siret" VARCHAR(255),
-ADD COLUMN "telephone" VARCHAR(255);

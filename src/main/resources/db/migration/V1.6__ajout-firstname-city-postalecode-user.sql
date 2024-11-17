@@ -1,4 +1,0 @@
-ALTER TABLE "user_entity"
-ADD COLUMN "firstname" VARCHAR(255),
-ADD COLUMN "city" VARCHAR(255),
-ADD COLUMN "postalcode" VARCHAR(255);
