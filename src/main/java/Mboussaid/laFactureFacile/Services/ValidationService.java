@@ -2,6 +2,7 @@ package Mboussaid.laFactureFacile.Services;
 
 import java.time.Instant;
 import java.util.Random;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,8 @@ public class ValidationService {
             int randomInteger = random.nextInt(999999);
             String code = String.format("%06d", randomInteger);
             validation.setCode(code);
+            String uid = UUID.randomUUID().toString();
+            validation.setUid(uid);
             this.validationRepository.save(validation);
             notificationService.sendNotificationCodeNewPassword(validation);
             return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(),"Un email vous a été envoyé. Veuillez vérifier votre boite de réception. Attention ce code est valable 10 minutes !"));

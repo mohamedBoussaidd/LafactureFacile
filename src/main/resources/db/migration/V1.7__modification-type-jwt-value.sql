@@ -1,2 +1,0 @@
-ALTER TABLE "jwt"
-ALTER COLUMN value TYPE TEXT;

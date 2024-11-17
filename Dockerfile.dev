@@ -1,0 +1,18 @@
+# Utiliser l'image Maven avec JDK pour le développement
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS dev
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier uniquement le pom.xml pour installer les dépendances
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
+
+# Copier les sources (seront remplacées par le volume dans Docker Compose)
+COPY src ./src
+
+# Exposer le port sur lequel l'application va tourner
+EXPOSE 8080
+
+# Commande pour lancer Spring Boot en mode développement
+CMD ["mvn", "spring-boot:run"]

@@ -25,17 +25,19 @@ public class Validation {
     @OneToOne( cascade = {CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "user_entity_id")
     private User user;
+    private String uid;
 
     public Validation() {
     }
     
-    public Validation(Integer id, Instant creation, Instant expired, Instant activation, String code, User user) {
+    public Validation(Integer id, Instant creation, Instant expired, Instant activation, String code, User user, String uid) {
         this.id = id;
         this.creation = creation;
         this.expired = expired;
         this.activation = activation;
         this.code = code;
         this.user = user;
+        this.uid = uid;
     }
 
     public Integer getId() {
@@ -84,5 +86,13 @@ public class Validation {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

@@ -35,6 +35,7 @@ public class UserService implements UserDetailsService {
     private final ValidationRepository validationRepository;
     private final ValidationService validationService;
     private final BCryptPasswordEncoder encoder;
+    private boolean isValid = false;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository,
             ValidationRepository validationRepository,
@@ -67,7 +68,7 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByEmail(user.getEmail()).isPresent() ||
                 user.getEmail().indexOf("@") == -1 ||
                 user.getEmail().indexOf(".") == -1) {
-            return ResponseEntity.badRequest().body("Error: Your email is already taken or invalid!");
+            return ResponseEntity.badRequest().body("Votre email est déja utiliser !!");
         }
         /* creation de l'utilisateur a ajouter en bdd */
         User userForRegister = new User();
@@ -78,12 +79,9 @@ public class UserService implements UserDetailsService {
         /* Création de role */
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new RuntimeException("Error: Role non trouver !!"));
         roles.add(userRole);
         userForRegister.setRoles(roles);
-        /* Creation de l id d'activation */
-        String idActivation = UUID.randomUUID().toString();
-        userForRegister.setId_Activation(idActivation);
         /* sauvegarde de l'utilisateur */
         userForRegister = userRepository.save(userForRegister);
         this.validationService.addValidation(userForRegister);
@@ -130,6 +128,13 @@ public class UserService implements UserDetailsService {
         return new ResponseEntity<>(
                 new MessageEntity(HttpStatus.CREATED.value(), "Félicitation votre compte est activé"),
                 HttpStatus.CREATED);
+    }
+
+    public boolean isValidUid(String uid) {
+        this.validationRepository.findByUid(uid).ifPresent(validation -> {
+            this.isValid = true;
+        });
+        return isValid;
     }
 
     @Override

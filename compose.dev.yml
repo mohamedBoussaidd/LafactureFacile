@@ -1,0 +1,14 @@
+services:
+  lafacturefacile:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app                # Monter les fichiers sources
+      - /app/target           # Eviter les fichiers compilés locaux dans le conteneur
+      - ~/.m2:/root/.m2       # Partager le cache Maven pour accélérer les builds
+    ports:
+      - "8080:8080"      # Exposer le port pour le développement
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    command: mvn spring-boot:run

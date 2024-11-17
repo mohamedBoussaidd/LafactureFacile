@@ -49,8 +49,6 @@ public class User implements UserDetails{
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_entity_id"), inverseJoinColumns = @JoinColumn(name = "roles_id"))
     private Set<Role> roles ;
-    @NotEmpty(message = "IdActivation is mandatory")
-    private String id_Activation;
     private boolean actif;
     private String adresse;
     private String city;
