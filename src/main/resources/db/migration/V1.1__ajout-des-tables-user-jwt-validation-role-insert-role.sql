@@ -1,7 +1,7 @@
 
 CREATE TABLE IF NOT EXISTS "roles"(
     id serial primary key,
-    name varchar(20) not null
+    name varchar(20) UNIQUE not null
 );
 CREATE TABLE IF NOT EXISTS "user_entity" (
     id serial primary key,
@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS "jwt"(
 
 CREATE TABLE IF NOT EXISTS "validations"(
     id serial primary key,
-    creation TIMESTAMP not null,
-    expired TIMESTAMP not null,
-    activation TIMESTAMP,
+    creation TIMESTAMPTZ  not null,
+    expired TIMESTAMPTZ  not null,
+    activation TIMESTAMPTZ ,
     code varchar(100) not null,
     uid VARCHAR(50) not null,
     user_entity_id integer not null,
@@ -42,6 +42,9 @@ CREATE Table IF NOT EXISTS "user_roles"(
     foreign key (user_entity_id) references "user_entity"(id),
     foreign key (roles_id) references "roles"(id)
 );
-INSERT INTO "roles" (name) VALUES ('ROLE_MODERATOR');
-INSERT INTO "roles" (name) VALUES ('ROLE_USER');
-INSERT INTO "roles" (name) VALUES ('ROLE_ADMIN');
+INSERT INTO "roles" (name) VALUES ('ROLE_MODERATOR')
+ON CONFLICT (name) DO NOTHING;
+INSERT INTO "roles" (name) VALUES ('ROLE_USER')
+ON CONFLICT (name) DO NOTHING;
+INSERT INTO "roles" (name) VALUES ('ROLE_ADMIN')
+ON CONFLICT (name) DO NOTHING;

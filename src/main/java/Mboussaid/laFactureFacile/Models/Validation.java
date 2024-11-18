@@ -1,6 +1,6 @@
 package Mboussaid.laFactureFacile.Models;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -18,9 +18,9 @@ public class Validation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Instant creation;
-    private Instant expired;
-    private Instant activation;
+    private ZonedDateTime creation;
+    private ZonedDateTime expired;
+    private ZonedDateTime activation;
     private String code;
     @OneToOne( cascade = {CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "user_entity_id")
@@ -30,7 +30,7 @@ public class Validation {
     public Validation() {
     }
     
-    public Validation(Integer id, Instant creation, Instant expired, Instant activation, String code, User user, String uid) {
+    public Validation(Integer id, ZonedDateTime creation, ZonedDateTime expired, ZonedDateTime activation, String code, User user, String uid) {
         this.id = id;
         this.creation = creation;
         this.expired = expired;
@@ -48,27 +48,27 @@ public class Validation {
         this.id = id;
     }
 
-    public Instant getCreation() {
+    public ZonedDateTime getCreation() {
         return creation;
     }
 
-    public void setCreation(Instant creation) {
+    public void setCreation(ZonedDateTime creation) {
         this.creation = creation;
     }
 
-    public Instant getExpired() {
+    public ZonedDateTime getExpired() {
         return expired;
     }
 
-    public void setExpired(Instant expired) {
+    public void setExpired(ZonedDateTime expired) {
         this.expired = expired;
     }
 
-    public Instant getActivation() {
+    public ZonedDateTime getActivation() {
         return activation;
     }
 
-    public void setActivation(Instant activation) {
+    public void setActivation(ZonedDateTime activation) {
         this.activation = activation;
     }
 

@@ -1,12 +1,10 @@
 package Mboussaid.laFactureFacile.Services;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import Mboussaid.laFactureFacile.DTO.MessageEntity;
 import Mboussaid.laFactureFacile.DTO.Request.UserRequest;
 import Mboussaid.laFactureFacile.Models.ERole;
+import Mboussaid.laFactureFacile.Models.GetDate;
 import Mboussaid.laFactureFacile.Models.Role;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.Validation;
@@ -35,7 +34,6 @@ public class UserService implements UserDetailsService {
     private final ValidationRepository validationRepository;
     private final ValidationService validationService;
     private final BCryptPasswordEncoder encoder;
-    private boolean isValid = false;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository,
             ValidationRepository validationRepository,
@@ -63,12 +61,33 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public ResponseEntity<?> save(UserRequest user) {
-        /* Vérification avant enregistrement */
-        if (userRepository.findByEmail(user.getEmail()).isPresent() ||
-                user.getEmail().indexOf("@") == -1 ||
-                user.getEmail().indexOf(".") == -1) {
+    public ResponseEntity<?> saveExistingUser(User userBdd, UserRequest user) {
+        if (userBdd.isActif()) {
             return ResponseEntity.badRequest().body("Votre email est déja utiliser !!");
+        } else {
+            userBdd.setName(user.getName());
+            userBdd.setPassword(this.encoder.encode(user.getPassword()));
+            this.userRepository.save(userBdd);
+            Optional<Validation> OptionalValidation = this.validationRepository.findByUser(userBdd);
+            if (OptionalValidation.isPresent()) {
+                Validation validation = OptionalValidation.get();
+                if (GetDate.getNow().isAfter(validation.getExpired())) {
+                    return this.validationService.addValidation(userBdd);
+                } else {
+                    return ResponseEntity.badRequest()
+                            .body("Votre email est déja utiliser.Vérifier vos email pour activer votre compte !!");
+                }
+            }
+            return this.validationService.addValidation(userBdd);
+        }
+    }
+
+    public ResponseEntity<?> save(UserRequest user) {
+        Optional<User> optionUserBdd = this.userRepository.findByEmail(user.getEmail());
+        /* Vérification avant enregistrement */
+        if (optionUserBdd.isPresent()) {
+            User userBdd = optionUserBdd.get();
+            return this.saveExistingUser(userBdd, user);
         }
         /* creation de l'utilisateur a ajouter en bdd */
         User userForRegister = new User();
@@ -116,13 +135,16 @@ public class UserService implements UserDetailsService {
 
     public ResponseEntity<?> activation(Map<String, String> activation) {
         Validation validation = validationService.getValidationByCode(activation.get("code"));
-        if (Instant.now().isAfter(validation.getExpired())) {
-            throw new RuntimeException("Error: Validation code is expired.");
+        if(validation.getActivation() != null) {
+            throw new RuntimeException("Votre compte est déja activé !!");
+        }
+        if (GetDate.getNow().isAfter(validation.getExpired())) {
+            throw new RuntimeException("Le code de validation a expirer. Veuillez refaire votre inscription");
         }
         User UserForActivation = userRepository.findById(validation.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
         UserForActivation.setActif(true);
-        validation.setActivation(Instant.now());
+        validation.setActivation(GetDate.getNow());
         validationRepository.save(validation);
         userRepository.save(UserForActivation);
         return new ResponseEntity<>(
@@ -131,10 +153,7 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean isValidUid(String uid) {
-        this.validationRepository.findByUid(uid).ifPresent(validation -> {
-            this.isValid = true;
-        });
-        return isValid;
+        return this.validationRepository.findByUid(uid).isPresent();
     }
 
     @Override
@@ -161,5 +180,10 @@ public class UserService implements UserDetailsService {
         }
         return new ResponseEntity<>(new MessageEntity(HttpStatus.BAD_REQUEST.value(), "Le code saisie est invalide."),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return email.matches(emailRegex);
     }
 }
