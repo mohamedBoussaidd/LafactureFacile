@@ -1,6 +1,6 @@
 package Mboussaid.laFactureFacile.Repository;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +15,5 @@ public interface ValidationRepository extends JpaRepository<Validation, Integer>
     Optional<Validation> findByUser(User user);
     Optional<Validation> findByUid(String uid);
 
-    void deleteAllByExpiredBefore(Instant now);
+    void deleteAllByExpiredBefore(ZonedDateTime now);
 }

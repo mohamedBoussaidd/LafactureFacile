@@ -24,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import Mboussaid.laFactureFacile.Services.UserService;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -52,6 +53,7 @@ public class ConfigurationSecurityApplication {
                                 .requestMatchers(POST, "/connexion").permitAll()
                                 .requestMatchers(POST, "/addUser").permitAll()
                                 .requestMatchers(POST, "/activation").permitAll()
+                                .requestMatchers(GET, "/activation/*").permitAll()
                                 .requestMatchers(POST, "/modifyPassword").permitAll()
                                 .requestMatchers(POST, "/newPassword").permitAll()
                                 .anyRequest().authenticated())
