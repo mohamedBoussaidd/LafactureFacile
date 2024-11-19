@@ -6,8 +6,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.Invoice;
+import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
+import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
 
 import java.io.IOException;
@@ -29,14 +31,14 @@ import java.util.Optional;
 @Service
 public class InvoiceService {
         private final Path root = Paths.get("src/main/resources/telechargements");
-        // private final FileStorageService fileStorageService;
         private final UserRepository userRepository;
-        // private final PdfService pdfService;
+        private final InvoiceInfoRepository invoiceInfoRepository;
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
-        public InvoiceService( UserRepository userRepository) {
+        public InvoiceService( UserRepository userRepository, InvoiceInfoRepository invoiceInfoRepository) {
                 this.userRepository = userRepository;
+                this.invoiceInfoRepository = invoiceInfoRepository;
         }
 
         public Map<String, Object> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
@@ -80,17 +82,19 @@ public class InvoiceService {
                 invoice.setInvoiceNumber(getNumberInvoice(invoice));
                 User principalUser = user.get();
                 Map<String, Object> result = new HashMap<>();
-                result.put("utilisateur", principalUser);
+                result.put("user", principalUser);
                 result.put("invoice", invoice);
+
+
+                InvoiceInfo invoiceInfo = new InvoiceInfo();
+                System.out.println(invoice.getAmountTTC().toString());
+                invoiceInfo.setInvoiceAmount(invoice.getAmountTTC().toString());
+                invoiceInfo.setInvoiceNumber(invoice.getInvoiceNumber());
+                invoiceInfo.setInvoiceDate(invoice.getCreationDate());
+                invoiceInfo.setInvoiceCustomer(invoice.getCustomerName());
+                invoiceInfo.setUser(principalUser);
+                this.invoiceInfoRepository.save(invoiceInfo);
                 return result;
-                // invoice.setInvoiceNumber(getNumberInvoice(invoice));
-                // User principalUser = user.get();
-                // File pdfFile = this.pdfService.createPdf(invoice, principalUser);
-                // fileStorageService.storeFile(pdfFile);
-                // Map<String, String> response = new HashMap<>();
-                // response.put("message", "Facture créée avec succès");
-                // response.put("filename", pdfFile.getName());
-                // return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
 
         public String getNumberInvoice(Invoice invoice) {
