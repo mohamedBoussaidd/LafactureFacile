@@ -38,3 +38,6 @@ build/
 ### development ###
 compose.dev.yml
 Dockerfile.dev
+
+### production ###
+.env

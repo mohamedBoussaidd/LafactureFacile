@@ -266,8 +266,11 @@ public class PdfService {
 
         public Table infoFootTable(User user) {
                 float colWidht[] = {
-                                175, 175, 175
+                                262, 262
                 };
+                // float colWidht[] = {
+                //                 175, 175, 175
+                // };
                 Table infoFooter = new Table(colWidht)
                                 .setMaxWidth(525)
                                 .setBackgroundColor(new DeviceRgb(100, 149, 237))
@@ -279,25 +282,25 @@ public class PdfService {
                                 .add(new Paragraph("Coordonnées"))
                                 .setBold()
                                 .setBorder(Border.NO_BORDER));
-                infoFooter.addCell(new Cell(0, 1).add(new Paragraph("Détails bancaires"))
-                                .setBold()
-                                .setBorder(Border.NO_BORDER));
+                // infoFooter.addCell(new Cell(0, 1).add(new Paragraph("Détails bancaires"))
+                //                 .setBold()
+                //                 .setBorder(Border.NO_BORDER));
                 infoFooter.addCell(new Cell(0, 1)
                                 .add(new Paragraph(
                                                 user.getAdresse() + "\n" + user.getPostalcode() + " " + user.getCity()
                                                                 + "\n"
-                                                                +"N° siren ou siret: "+ user.getSiret()))
+                                                                +"siret: "+ user.getSiret()))
                                 .setBorder(Border.NO_BORDER));
                 infoFooter.addCell(new Cell(0, 1)
                                 .add(new Paragraph(
                                                 user.getName() + " " + user.getFirstname()
                                                                 + "\n"
-                                                                +"N° Tel: "+ user.getTelephone() + "\n" +"Mail:"+ user.getEmail()))
+                                                                + user.getTelephone() + "\n" + user.getEmail()))
                                 .setBorder(Border.NO_BORDER));
-                infoFooter.addCell(new Cell(0, 1)
+/*                 infoFooter.addCell(new Cell(0, 1)
                                 .add(new Paragraph(
                                                 "IBAN : FR76 3000 3030 3000 0505 0492 004" + "\n" + "BIC : SOGEFRPP"))
-                                .setBorder(Border.NO_BORDER));
+                                .setBorder(Border.NO_BORDER)); */
                 return infoFooter;
         }
 
