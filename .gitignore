@@ -32,5 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-### pdf ###
+### PDF ###
 *.pdf
+
+### development ###
+compose.dev.yml
+Dockerfile.dev
