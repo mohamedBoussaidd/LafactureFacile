@@ -68,4 +68,5 @@ jobs:
             echo DB_USERNAME="${{ secrets.DB_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
+            docker restart ${{env.IMAGE}}
             rm /opt/applications/lff/${{env.IMAGE}}/.env

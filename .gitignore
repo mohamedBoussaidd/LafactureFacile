@@ -34,3 +34,7 @@ build/
 
 ### PDF ###
 *.pdf
+
+### development ###
+compose.dev.yml
+Dockerfile.dev
