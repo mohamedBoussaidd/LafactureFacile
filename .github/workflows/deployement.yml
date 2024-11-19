@@ -1,5 +1,8 @@
 name: deploy lff back
-on: [push]
+on:
+  push:
+    branches:
+      - main
 env:
   IMAGE: backend
   VERSION: 0.0.1
