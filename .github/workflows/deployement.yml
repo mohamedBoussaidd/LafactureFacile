@@ -2,7 +2,7 @@ name: deploy lff back
 on:
   push:
     branches:
-      - main
+      - master
 env:
   IMAGE: backend
   VERSION: 0.0.1
