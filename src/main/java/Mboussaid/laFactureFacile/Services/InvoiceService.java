@@ -20,6 +20,9 @@ import java.nio.file.Paths;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -79,8 +82,11 @@ public class InvoiceService {
                                 .amountHT(amountHT)
                                 .amountTTC(amountTTC)
                                 .build();
-                invoice.setInvoiceNumber(getNumberInvoice(invoice));
                 User principalUser = user.get();
+                Integer numberOfInvoiceInfo = principalUser.getInvoicesInfo().size();
+                System.out.println(numberOfInvoiceInfo);
+                invoice.setInvoiceNumber(getNumberInvoice(invoice, numberOfInvoiceInfo));
+                System.out.println(invoice.getInvoiceNumber());
                 Map<String, Object> result = new HashMap<>();
                 result.put("user", principalUser);
                 result.put("invoice", invoice);
@@ -97,10 +103,11 @@ public class InvoiceService {
                 return result;
         }
 
-        public String getNumberInvoice(Invoice invoice) {
-                String actualDate = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        public String getNumberInvoice(Invoice invoice, Integer numberOfInvoiceInfo) {
+                Integer realNumber = numberOfInvoiceInfo + 1;
+                String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
                 System.out.println(actualDate + invoice.getCustomerName().substring(0, 3));
-                return actualDate + invoice.getSellerName().substring(0, 3);
+                return actualDate + invoice.getSellerName().substring(0, 3)+invoice.getCustomerName().substring(0, 3) +  realNumber;
         }
 
         public void deleteInvoice() {
@@ -113,6 +120,15 @@ public class InvoiceService {
         }
 
         public void updateInvoice() {
+        }
+        public ResponseEntity<?> getInvoiceInfoByUser(Integer id) {
+                Optional<User> user = this.userRepository.findById(id);
+                if (user.isEmpty()) {
+                        return ResponseEntity.badRequest().body("User not found");
+                }
+                User principalUser = user.get();
+                List<InvoiceInfo> listInvoiceinfo = this.invoiceInfoRepository.findByUser(principalUser);
+                return ResponseEntity.ok(listInvoiceinfo);
         }
 
         public Resource displayInvoice(String filename) {

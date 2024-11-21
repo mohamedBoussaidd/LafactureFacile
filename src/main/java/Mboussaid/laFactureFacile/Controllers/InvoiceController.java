@@ -3,6 +3,7 @@ package Mboussaid.laFactureFacile.Controllers;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.Invoice;
+import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Services.FileStorageService;
 import Mboussaid.laFactureFacile.Services.InvoiceService;
@@ -61,4 +63,11 @@ public class InvoiceController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
                 .body(file);
     }
+    @GetMapping("getInvoiceInfoById/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getInvoiceInfoById(@PathVariable Integer id) {
+        ResponseEntity<?> invoiceInfo = this.invoiceService.getInvoiceInfoByUser(id);
+        return new ResponseEntity<>(invoiceInfo, HttpStatus.OK);
+    }
+
 }

@@ -8,6 +8,7 @@ services:
       - spring.datasource.username=${DB_USERNAME}
       - spring.datasource.password=${DB_PASSWORD}
       - JAVA_TOOL_OPTIONS=-Xss200k
+      - file.upload-dir=${UPLOAD_DIR}
     networks:
       - lafacturefacile-network
 networks:
