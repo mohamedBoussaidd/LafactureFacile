@@ -76,6 +76,8 @@ public class InvoiceService {
                                 .sellerPhone(user.get().getTelephone())
                                 .customerEmail(invoiceRequest.getCustomerEmail())
                                 .customerName(invoiceRequest.getCustomerName())
+                                .customerAddress(invoiceRequest.getCustomerAddress())
+                                .customerPhone(invoiceRequest.getCustomerPhone())
                                 .creationDate(invoiceRequest.getCreationDate())
                                 .expirationDate(invoiceRequest.getExpirationDate())
                                 .items(items)
@@ -85,7 +87,11 @@ public class InvoiceService {
                 User principalUser = user.get();
                 Integer numberOfInvoiceInfo = principalUser.getInvoicesInfo().size();
                 System.out.println(numberOfInvoiceInfo);
-                invoice.setInvoiceNumber(getNumberInvoice(invoice, numberOfInvoiceInfo));
+                if(invoiceRequest.getInvoiceNumber().equals("")) {
+                        invoice.setInvoiceNumber(getNumberInvoice(invoice, numberOfInvoiceInfo));
+                } else {
+                        invoice.setInvoiceNumber(invoiceRequest.getInvoiceNumber());
+                }
                 System.out.println(invoice.getInvoiceNumber());
                 Map<String, Object> result = new HashMap<>();
                 result.put("user", principalUser);

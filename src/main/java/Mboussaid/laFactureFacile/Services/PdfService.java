@@ -75,17 +75,6 @@ public class PdfService {
                                 .setMarginBottom(30f)
                                 .setFontSize(30f)
                                 .setBorder(Border.NO_BORDER)).setHeight(100f);
-                // table.addCell(new Cell()
-                // .add(new Paragraph(
-                // invoice.getSellerName() + "\n" + invoice.getCustomerEmail() + "\n" +
-                // "invoice.getNumber()"))
-                // .setTextAlignment(TextAlignment.RIGHT)
-                // .setVerticalAlignment(VerticalAlignment.MIDDLE)
-                // .setMarginTop(30f)
-                // .setMarginBottom(30f)
-                // .setBorder(Border.NO_BORDER)
-                // .setFontSize(10f)
-                // .setMarginRight(20f));
                 return table;
         }
 
@@ -152,7 +141,7 @@ public class PdfService {
                                 .addCell(new Cell().add(new Paragraph("" + invoice.getExpirationDate()))
                                                 .setBorder(Border.NO_BORDER));
                 // Changement : Ajout de la reference
-                infoFacture.addCell(new Cell().add(new Paragraph("" + " invoice.getReference()"))
+                infoFacture.addCell(new Cell().add(new Paragraph("" + invoice.getId()))
                                 .setBorder(Border.NO_BORDER));
                 return infoFacture;
         }

@@ -70,5 +70,6 @@ jobs:
             echo DB_HOST="${{ secrets.DB_HOST }}" > /opt/applications/lff/${{env.IMAGE}}/.env
             echo DB_USERNAME="${{ secrets.DB_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo UPLOAD_DIR="${{ secrets.UPLOAD_DIR }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
             rm /opt/applications/lff/${{env.IMAGE}}/.env
