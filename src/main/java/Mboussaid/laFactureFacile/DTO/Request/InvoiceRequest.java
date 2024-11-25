@@ -18,6 +18,7 @@ public class InvoiceRequest {
     private String creationDate;
     private String expirationDate;
     private String invoiceNumber;
+    private String status;
     private List<ItemsRequest> items;
     private Integer amount;
 }

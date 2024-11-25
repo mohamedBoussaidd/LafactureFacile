@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.InvoiceInfo;
@@ -68,6 +70,11 @@ public class InvoiceController {
     public ResponseEntity<?> getInvoiceInfoById(@PathVariable Integer id) {
         ResponseEntity<?> invoiceInfo = this.invoiceService.getInvoiceInfoByUser(id);
         return new ResponseEntity<>(invoiceInfo, HttpStatus.OK);
+    }
+
+    @PostMapping("updateInvoice")
+    public ResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoiceInfo) {
+        return ResponseEntity.ok(this.invoiceService.updateInvoice(invoiceInfo));
     }
 
 }

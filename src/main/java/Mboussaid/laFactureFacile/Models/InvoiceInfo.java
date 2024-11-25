@@ -33,8 +33,12 @@ public class InvoiceInfo {
     private String invoiceCustomer;
     @Column(name = "invoice_date")
     private String invoiceDate;
+    @Column(name = "invoice_expir_date")
+    private String invoiceExpirDate;
     @Column(name = "invoice_amount")
     private String invoiceAmount;
+    @Column(name = "status")
+    private String status;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
