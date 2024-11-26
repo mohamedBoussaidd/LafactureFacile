@@ -12,7 +12,7 @@ RUN mvn dependency:go-offline -B && mvn clean
 COPY src ./src
 
 # Donner les droits d'exécution au fichier mvnw
-RUN chmod +x mvnw
+RUN chmod +x ./mvnw
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
