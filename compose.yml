@@ -9,6 +9,8 @@ services:
       - spring.datasource.password=${DB_PASSWORD}
       - JAVA_TOOL_OPTIONS=-Xss200k
       - file.upload-dir=${UPLOAD_DIR}
+    volumes:
+      - /var/private_data/pdfs:/app/pdfs
     networks:
       - lafacturefacile-network
 networks:
