@@ -12,7 +12,7 @@ RUN mvn dependency:go-offline -B && mvn clean
 COPY src ./src
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
-RUN apk update && apk add --no-cache shadow
+RUN apk update && apk add --no-cache shadow bash
 
 # Compiler et packager l'application
 RUN ./mvnw clean package spring-boot:build-image -Dmaven.test.skip=true
