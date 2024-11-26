@@ -4,10 +4,6 @@ FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le fichier mvnw et mvnw.cmd
-COPY .mvn/ .mvn/
-COPY mvnw ./
-
 # Copier uniquement le pom.xml pour installer les dépendances
 COPY pom.xml ./
 RUN mvn dependency:go-offline -B && mvn clean
@@ -21,12 +17,8 @@ RUN chmod +x ./mvnw
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
-ENV MAVEN_HOME=/usr/share/maven
-ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
-ENV PATH="${MAVEN_HOME}/bin:${PATH}"
-
 # Compiler et packager l'application
-RUN ./mvnw clean package spring-boot:build-image -Dmaven.test.skip=true -X
+RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
 
 # Étape finale (image pour l'exécution)
 FROM eclipse-temurin:17-alpine
