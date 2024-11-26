@@ -91,3 +91,4 @@ jobs:
             "
             docker image prune -f
             rm /opt/applications/lff/${{env.IMAGE}}/.env
+            
