@@ -83,5 +83,11 @@ jobs:
             echo UPLOAD_DIR="${{ secrets.UPLOAD_DIR }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             cat /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
+            docker exec -u root lafacturefacile-backend sh -c "
+              groupadd -r lffusergroup && \
+              useradd -r -g lffusergroup lffappuser && \
+              chown -R lffappuser:lffusergroup /app/pdfs && \
+              chmod -R 750 /app/pdfs
+            "
             docker image prune -f
             rm /opt/applications/lff/${{env.IMAGE}}/.env
