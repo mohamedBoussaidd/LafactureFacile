@@ -85,4 +85,3 @@ jobs:
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
             docker image prune -f
             rm /opt/applications/lff/${{env.IMAGE}}/.env
-            
