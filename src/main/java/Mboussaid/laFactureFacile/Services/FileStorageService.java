@@ -22,6 +22,8 @@ public class FileStorageService implements FileStorage {
         try {
             // Créer le répertoire si nécessaire
             File directory = new File(uploadDir);
+            System.out.println( "directory : " + directory);
+            System.out.println( "uploadDir : " + uploadDir);
             if (!directory.exists()) {
                 directory.mkdirs(); // Crée tous les répertoires nécessaires
             }

@@ -88,19 +88,16 @@ public class InvoiceService {
                                 .build();
                 User principalUser = user.get();
                 Integer numberOfInvoiceInfo = principalUser.getInvoicesInfo().size();
-                System.out.println(numberOfInvoiceInfo);
                 if (invoiceRequest.getInvoiceNumber().equals("")) {
                         invoice.setInvoiceNumber(getNumberInvoice(invoice, numberOfInvoiceInfo));
                 } else {
                         invoice.setInvoiceNumber(invoiceRequest.getInvoiceNumber());
                 }
-                System.out.println(invoice.getInvoiceNumber());
                 Map<String, Object> result = new HashMap<>();
                 result.put("user", principalUser);
                 result.put("invoice", invoice);
 
                 InvoiceInfo invoiceInfo = new InvoiceInfo();
-                System.out.println(invoice.getAmountTTC().toString());
                 invoiceInfo.setInvoiceAmount(invoice.getAmountTTC().toString());
                 invoiceInfo.setInvoiceNumber(invoice.getInvoiceNumber());
                 invoiceInfo.setInvoiceExpirDate(invoice.getExpirationDate());
