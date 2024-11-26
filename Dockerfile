@@ -21,6 +21,8 @@ RUN chmod +x ./mvnw
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
+ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
+
 # Compiler et packager l'application
 RUN ./mvnw clean package spring-boot:build-image -Dmaven.test.skip=true
 
