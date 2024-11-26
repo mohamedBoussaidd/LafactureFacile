@@ -11,8 +11,15 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
+# Changer les permissions pour l'utilisateur lffappuser
+RUN chown -R lffappuser:lffusergroup /app
+RUN chmod -R 755 /app
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
+
+# Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
+RUN mkdir -p /home/lffappuser/.m2
+RUN chown -R lffappuser:lffusergroup /home/lffappuser/.m2
 
 # Compiler et packager l'application
 RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
@@ -32,11 +39,18 @@ RUN mkdir -p /app/pdfs
 RUN chown -R lffappuser:lffusergroup /app/pdfs
 RUN chmod -R 750 /app/pdfs
 
+
+
+
 # Passer à l'utilisateur myuser
 USER lffappuser
 
 # Copier l'artefact généré par Maven
 COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
+
+# Assurer les permissions sur l'artefact JAR généré
+RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar
+RUN chmod 755 /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8080
