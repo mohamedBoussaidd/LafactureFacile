@@ -5,8 +5,8 @@ FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copier le fichier mvnw et mvnw.cmd
+COPY .mvn/ .mvn/
 COPY mvnw ./
-COPY mvnw.cmd ./
 
 # Copier uniquement le pom.xml pour installer les dépendances
 COPY pom.xml ./
