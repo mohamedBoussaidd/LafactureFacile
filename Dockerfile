@@ -4,6 +4,10 @@ FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 # Définir le répertoire de travail
 WORKDIR /app
 
+# Copier le fichier mvnw et mvnw.cmd
+COPY mvnw ./
+COPY mvnw.cmd ./
+
 # Copier uniquement le pom.xml pour installer les dépendances
 COPY pom.xml ./
 RUN mvn dependency:go-offline -B && mvn clean
