@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.Invoice;
@@ -129,26 +130,26 @@ public class InvoiceService {
         public void getInvoices() {
         }
 
-        public ResponseEntity<?> updateInvoice(InvoiceInfoRequest invoiceInfoRequest) {
+        public CustomResponseEntity<?> updateInvoice(InvoiceInfoRequest invoiceInfoRequest) {
                 Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoiceInfoRequest.getId());
                 if (optionalInvoiceInfo.isEmpty()) {
-                        return ResponseEntity.badRequest().body("Invoice not found");
+                        return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),"un probleme est survenu lors de la mise à jour de la facture");
                 }
                 InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
                 invoiceInfo.setInvoiceExpirDate(invoiceInfoRequest.getInvoiceExpirDate());
                 invoiceInfo.setStatus(invoiceInfoRequest.getStatus());
                 InvoiceInfo invoiceUpdate = this.invoiceInfoRepository.save(invoiceInfo);
-                return ResponseEntity.ok(invoiceUpdate);
+                return CustomResponseEntity.success(HttpStatus.OK.value(),"La mise à jour de votre facture a ete effectué",invoiceUpdate);
         }
 
-        public ResponseEntity<?> getInvoiceInfoByUser(Integer id) {
+        public CustomResponseEntity<?> getInvoiceInfoByUser(Integer id) {
                 Optional<User> user = this.userRepository.findById(id);
                 if (user.isEmpty()) {
-                        return ResponseEntity.badRequest().body("User not found");
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Un probleme est survenu lors de la récupération des factures");
                 }
                 User principalUser = user.get();
                 List<InvoiceInfo> listInvoiceinfo = this.invoiceInfoRepository.findByUser(principalUser);
-                return ResponseEntity.ok(listInvoiceinfo);
+                return CustomResponseEntity.success(HttpStatus.OK.value(),"La recuperation des factures a réussi",listInvoiceinfo);
         }
 
         public Resource displayInvoice(String filename) {

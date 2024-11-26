@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.Invoice;
@@ -43,7 +44,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/addInvoice")
-    public ResponseEntity<?> addInvoice(@RequestBody InvoiceRequest invoice) throws IOException {
+    public CustomResponseEntity<?> addInvoice(@RequestBody InvoiceRequest invoice) throws IOException {
         Map<String, Object> mapresult = this.invoiceService.createInvoice(invoice);
 
         Invoice invoiceResult = (Invoice) mapresult.get("invoice");
@@ -54,7 +55,7 @@ public class InvoiceController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Facture créée avec succès");
         response.put("filename", pdfFile.getName());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return CustomResponseEntity.success(HttpStatus.CREATED.value(),"La facture a été créée avec succès !!",response );
     }
 
     @GetMapping("getInvoice/{filename}")
@@ -67,14 +68,13 @@ public class InvoiceController {
     }
     @GetMapping("getInvoiceInfoById/{id}")
     @ResponseBody
-    public ResponseEntity<?> getInvoiceInfoById(@PathVariable Integer id) {
-        ResponseEntity<?> invoiceInfo = this.invoiceService.getInvoiceInfoByUser(id);
-        return new ResponseEntity<>(invoiceInfo, HttpStatus.OK);
+    public CustomResponseEntity<?> getInvoiceInfoById(@PathVariable Integer id) {
+        return this.invoiceService.getInvoiceInfoByUser(id);
     }
 
     @PostMapping("updateInvoice")
-    public ResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoiceInfo) {
-        return ResponseEntity.ok(this.invoiceService.updateInvoice(invoiceInfo));
+    public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoiceInfo) {
+        return this.invoiceService.updateInvoice(invoiceInfo);
     }
 
 }

@@ -14,7 +14,7 @@ import Mboussaid.laFactureFacile.Models.GetDate;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.Validation;
 import Mboussaid.laFactureFacile.Repository.ValidationRepository;
-import Mboussaid.laFactureFacile.DTO.MessageEntity;
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class ValidationService {
         this.notificationService = notificationService;
     }
 
-    public ResponseEntity<?> addValidation(User user) {
+    public CustomResponseEntity<?> addValidation(User user) {
         Optional<Validation> validationOptional = this.validationRepository.findByUser(user);
         if (validationOptional.isPresent()) {
             Validation validation = validationOptional.get();
@@ -45,8 +45,8 @@ public class ValidationService {
             validation.setUid(uid);
             this.validationRepository.save(validation);
             notificationService.sendNotificationActivation(validation);
-            return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(),
-                    "Un email vous a été envoyé. Veuillez vérifier votre boite de réception. Attention ce code est valable 10 minutes !"));
+            return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+                    "Un email vous a été envoyé. Veuillez vérifier votre boite de réception. Attention ce code est valable 10 minutes !");
         }
         Validation validation = new Validation();
         validation.setUser(user);
@@ -64,8 +64,8 @@ public class ValidationService {
         validation.setUid(uid);
         validationRepository.save(validation);
         notificationService.sendNotificationActivation(validation);
-        return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(),
-                "Un email vous a été envoyé. Veuillez vérifier votre boite de réception.  Attention ce code est valable 10 minutes !"));
+        return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+                "Un email vous a été envoyé. Veuillez vérifier votre boite de réception.  Attention ce code est valable 10 minutes !");
     }
 
     public Validation getValidationByCode(String code) {

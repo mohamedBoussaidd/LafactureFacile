@@ -3,6 +3,7 @@ package Mboussaid.laFactureFacile.Controllers;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.UserRequest;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Services.UserService;
@@ -10,8 +11,8 @@ import Mboussaid.laFactureFacile.Services.UserService;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -37,15 +38,20 @@ public class UserController {
         }
     };
 
+    @GetMapping("getUserById/{id}")
+    public CustomResponseEntity<?> getUserById(@PathVariable Integer id) {
+        return userService.getUserById(id);
+    };
+
     @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
     @PostMapping("addUser")
-    public ResponseEntity<?> addUser(@RequestBody UserRequest user) {
+    public CustomResponseEntity<?> addUser(@RequestBody UserRequest user) {
         return userService.save(user);
     }
 
     // update user
     @PostMapping("updateUser")
-    public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest) {
+    public CustomResponseEntity<?> updateUser(@RequestBody UserRequest userRequest) {
         return userService.updateUser(userRequest);
     }
 

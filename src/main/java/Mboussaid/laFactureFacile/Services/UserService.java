@@ -15,8 +15,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import Mboussaid.laFactureFacile.DTO.MessageEntity;
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.UserRequest;
+import Mboussaid.laFactureFacile.DTO.Response.UserDTO;
 import Mboussaid.laFactureFacile.Models.ERole;
 import Mboussaid.laFactureFacile.Models.GetDate;
 import Mboussaid.laFactureFacile.Models.Role;
@@ -57,13 +58,28 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
-    public User getUserById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+    public CustomResponseEntity<?> getUserById(Integer id) {
+
+        Optional<User> userBdd = userRepository.findById(id);
+        if (userBdd.isPresent()) {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(userBdd.get().getId());
+            userDTO.setName(userBdd.get().getName());
+            userDTO.setFirstname(userBdd.get().getFirstname());
+            userDTO.setEmail(userBdd.get().getEmail());
+            userDTO.setAdresse(userBdd.get().getAdresse());
+            userDTO.setCity(userBdd.get().getCity());
+            userDTO.setPostalCode(userBdd.get().getPostalcode());
+            userDTO.setSiret(userBdd.get().getSiret());
+            userDTO.setTelephone(userBdd.get().getTelephone());
+            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Utilisateur trouvé", userDTO);
+        }
+        return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(), "Utilisateur non trouvé");
     }
 
-    public ResponseEntity<?> saveExistingUser(User userBdd, UserRequest user) {
+    public CustomResponseEntity<?> saveExistingUser(User userBdd, UserRequest user) {
         if (userBdd.isActif()) {
-            return ResponseEntity.badRequest().body("Votre email est déja utiliser !!");
+            return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Votre email est déja utiliser !!");
         } else {
             userBdd.setName(user.getName());
             userBdd.setPassword(this.encoder.encode(user.getPassword()));
@@ -74,15 +90,14 @@ public class UserService implements UserDetailsService {
                 if (GetDate.getNow().isAfter(validation.getExpired())) {
                     return this.validationService.addValidation(userBdd);
                 } else {
-                    return ResponseEntity.badRequest()
-                            .body("Votre email est déja utiliser.Vérifier vos email pour activer votre compte !!");
+                    return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Votre email est déja utiliser.Vérifier vos email pour activer votre compte !!");
                 }
             }
             return this.validationService.addValidation(userBdd);
         }
     }
 
-    public ResponseEntity<?> save(UserRequest user) {
+    public CustomResponseEntity<?> save(UserRequest user) {
         Optional<User> optionUserBdd = this.userRepository.findByEmail(user.getEmail());
         /* Vérification avant enregistrement */
         if (optionUserBdd.isPresent()) {
@@ -105,17 +120,17 @@ public class UserService implements UserDetailsService {
         userForRegister = userRepository.save(userForRegister);
         this.validationService.addValidation(userForRegister);
 
-        return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(),
-                "Félicitation votre compte est créé. Un email vous a été envoyé. Veuillez vérifier votre boite de réception."));
+        return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+                "Félicitation votre compte est créé. Un email vous a été envoyé. Veuillez vérifier votre boite de réception.");
     }
 
     // cette fonction ne met pas a jour le mot de passe ni l'email ni les roles
-    public ResponseEntity<?> updateUser(UserRequest userRequest) {
+    public CustomResponseEntity<?> updateUser(UserRequest userRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userImpl = (User) auth.getPrincipal();
         Optional<User> optionalUser = userRepository.findById(userImpl.getId());
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("Error: User not found.");
+            return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Un probleme est survenu lors de la mise à jour de votre profil !!");
         }
         User user = optionalUser.get();
         user.setName(userRequest.getName());
@@ -126,20 +141,20 @@ public class UserService implements UserDetailsService {
         user.setTelephone(userRequest.getPhone());
         user.setSiret(userRequest.getSiret());
         userRepository.save(user);
-        return ResponseEntity.ok(new MessageEntity(HttpStatus.CREATED.value(), "User updated successfully"));
+        return CustomResponseEntity.success(HttpStatus.CREATED.value(), "Votre profil a été mis à jour");
     }
 
     public void deleteUser(User user) {
         userRepository.deleteById(user.getId());
     }
 
-    public ResponseEntity<?> activation(Map<String, String> activation) {
+    public CustomResponseEntity<?> activation(Map<String, String> activation) {
         Validation validation = validationService.getValidationByCode(activation.get("code"));
         if(validation.getActivation() != null) {
-            throw new RuntimeException("Votre compte est déja activé !!");
+            CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Votre compte est déja activé !!");
         }
         if (GetDate.getNow().isAfter(validation.getExpired())) {
-            throw new RuntimeException("Le code de validation a expirer. Veuillez refaire votre inscription");
+            CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Le code de validation a expirer. Veuillez refaire votre inscription");
         }
         User UserForActivation = userRepository.findById(validation.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
@@ -147,9 +162,7 @@ public class UserService implements UserDetailsService {
         validation.setActivation(GetDate.getNow());
         validationRepository.save(validation);
         userRepository.save(UserForActivation);
-        return new ResponseEntity<>(
-                new MessageEntity(HttpStatus.CREATED.value(), "Félicitation votre compte est activé"),
-                HttpStatus.CREATED);
+        return CustomResponseEntity.success(HttpStatus.CREATED.value(), "Félicitation votre compte est activé");
     }
 
     public boolean isValidUid(String uid) {
@@ -162,12 +175,12 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public ResponseEntity<?> modifyPassword(Map<String, String> parameters) {
+    public CustomResponseEntity<?> modifyPassword(Map<String, String> parameters) {
         User user = (User) this.loadUserByUsername(parameters.get("email"));
         return this.validationService.addValidation(user);
     }
 
-    public ResponseEntity<?> newPassword(Map<String, String> parameters) {
+    public CustomResponseEntity<?> newPassword(Map<String, String> parameters) {
         User user = (User) this.loadUserByUsername(parameters.get("email"));
         final Validation validation = validationService.getValidationByCode(parameters.get("code"));
         if (validation.getUser().getEmail().equals(user.getEmail())) {
@@ -175,11 +188,10 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordCrypte);
             this.userRepository.save(user);
             validationService.deleteValidation(validation);
-            return ResponseEntity.ok(
-                    new MessageEntity(HttpStatus.CREATED.value(), "Félicitation votre mot de passe a été modifié"));
+            return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+                            "Félicitation votre mot de passe a été modifié");
         }
-        return new ResponseEntity<>(new MessageEntity(HttpStatus.BAD_REQUEST.value(), "Le code saisie est invalide."),
-                HttpStatus.BAD_REQUEST);
+        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Le code saisie est invalide.");
     }
 
     private boolean isValidEmail(String email) {

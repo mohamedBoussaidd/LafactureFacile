@@ -2,7 +2,7 @@ package Mboussaid.laFactureFacile.Controllers;
 
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import Mboussaid.laFactureFacile.DTO.AuthenticationDTO;
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.Security.JwtService;
 import Mboussaid.laFactureFacile.Services.UserService;
 
@@ -31,7 +32,7 @@ public class AuthenticationController {
 
 
     @PostMapping("activation")
-    public ResponseEntity<?> activation(@RequestBody Map<String, String> activation) {
+    public CustomResponseEntity<?> activation(@RequestBody Map<String, String> activation) {
         return userService.activation(activation);
     }
     @GetMapping("activation/{uid}")
@@ -40,23 +41,23 @@ public class AuthenticationController {
     }
 
     @PostMapping("/connexion")
-    public Map<String, String> connexion(@RequestBody AuthenticationDTO authenticationDTO) {
+    public CustomResponseEntity<Map<String, String>> connexion(@RequestBody AuthenticationDTO authenticationDTO) {
         final Authentication authentication = authenticateManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authenticationDTO.username(),
                         authenticationDTO.password()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generate(authenticationDTO.username());
+            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Connexion réussie",jwtService.generate(authenticationDTO.username()));
         }
-        return null;
+        return CustomResponseEntity.error(HttpStatus.UNAUTHORIZED.value(),"Erreur d'authentification");
     }
 
     @PostMapping("modifyPassword")
-    public ResponseEntity<?> modifyPassword(@RequestBody Map<String, String> parameters) {
+    public CustomResponseEntity<?> modifyPassword(@RequestBody Map<String, String> parameters) {
         return this.userService.modifyPassword(parameters);
     }
 
     @PostMapping("newPassword")
-    public ResponseEntity<?> newPassword(@RequestBody Map<String, String> parameters) {
+    public CustomResponseEntity<?> newPassword(@RequestBody Map<String, String> parameters) {
         return this.userService.newPassword(parameters);
     }
     @PostMapping("tokenValidation")

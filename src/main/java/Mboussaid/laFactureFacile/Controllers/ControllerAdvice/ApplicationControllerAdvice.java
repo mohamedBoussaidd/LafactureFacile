@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import jakarta.validation.ConstraintViolationException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -24,24 +25,18 @@ public class ApplicationControllerAdvice {
 
     @ResponseStatus(UNAUTHORIZED)
     @ExceptionHandler({ BadCredentialsException.class })
-    public @ResponseBody ProblemDetail handelBadCredentialsException(BadCredentialsException e) {
+    public @ResponseBody CustomResponseEntity<?> handelBadCredentialsException(BadCredentialsException e) {
         ApplicationControllerAdvice.log.error(e.getMessage(), e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(UNAUTHORIZED, e.getMessage());
-        problemDetail.setProperty("ErrorMessage", "Nous n'avons pas trouvé votre compte ");
+        CustomResponseEntity<?> problemDetail = CustomResponseEntity.error(UNAUTHORIZED.value(),"Nous n'avons pas trouvé votre compte !!!");
         return problemDetail;
     }
 
     @ResponseStatus(UNAUTHORIZED)
     @ExceptionHandler({ RuntimeException.class })
-    public @ResponseBody ProblemDetail handleRuntimeException(RuntimeException e) {
+    public @ResponseBody CustomResponseEntity<?> handleRuntimeException(RuntimeException e) {
         ApplicationControllerAdvice.log.error(e.getMessage(), e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(UNAUTHORIZED, e.getMessage());
-        problemDetail.setProperty("ErrorMessage",
-                "Nous n'avons pas trouvé votre compte ou n'est pas activé ! vérifier votre boite de réception");
-        problemDetail.setProperty("ErrorActivation", "Votre code d'activation est incorrect ou a expiré !");
-        problemDetail.setProperty("ErrorValidation", "Les informations fournies sont incorrectes");
-        problemDetail.setProperty("ErrorEvent", "Les informations fournies sont incorrectes !");
-        return problemDetail;
+        CustomResponseEntity<?> customResponseEntity = CustomResponseEntity.error(UNAUTHORIZED.value(),"Les informations fournies sont incorrectes");
+        return customResponseEntity;
     }
     @ResponseStatus(UNAUTHORIZED)
     @ExceptionHandler({ ConstraintViolationException.class })
