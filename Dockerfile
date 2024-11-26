@@ -21,10 +21,12 @@ RUN chmod +x ./mvnw
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
+ENV MAVEN_HOME=/usr/share/maven
 ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
+ENV PATH="${MAVEN_HOME}/bin:${PATH}"
 
 # Compiler et packager l'application
-RUN ./mvnw clean package spring-boot:build-image -Dmaven.test.skip=true
+RUN ./mvnw clean package spring-boot:build-image -Dmaven.test.skip=true -X
 
 # Étape finale (image pour l'exécution)
 FROM eclipse-temurin:17-alpine
