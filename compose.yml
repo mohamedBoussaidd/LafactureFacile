@@ -11,6 +11,7 @@ services:
       - file.upload-dir=${UPLOAD_DIR}
     volumes:
       - /var/private_data/pdfs:/app/pdfs
+    user: "lffappuser"
     networks:
       - lafacturefacile-network
 networks:
