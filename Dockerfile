@@ -11,6 +11,7 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
+RUN addgroup -g 998 docker && usermod -aG docker -G lffappuser
 # Utiliser addgroup et adduser au lieu de groupadd et useradd
 # RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
 
@@ -19,7 +20,6 @@ COPY src ./src
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
-RUN addgroup -g 998 docker && usermod -aG docker -G lffappuser
 
 # Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
 # RUN mkdir -p /home/lffappuser/.m2
