@@ -11,9 +11,9 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
-RUN addgroup -g 998 docker && usermod -aG docker -G lffappuser
 # Utiliser addgroup et adduser au lieu de groupadd et useradd
-# RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+RUN addgroup -g 998 docker && usermod -aG docker -G lffappuser
 
 # RUN chown -R lffappuser:lffusergroup /app \
 #     chmod -R 755 /app
