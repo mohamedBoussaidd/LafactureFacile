@@ -11,10 +11,8 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
-
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe
 RUN apk update && apk add --no-cache
-
 
 # Compiler et packager l'application
 RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
