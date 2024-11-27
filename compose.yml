@@ -11,8 +11,7 @@ services:
       - file.upload-dir=${UPLOAD_DIR}
     volumes:
       - /var/private_data/pdfs:/app/pdfs
-      # - /var/run/docker.sock:/var/run/docker.sock
-    # user: "lffappuser"
+    user: "lffappuser"
     networks:
       - lafacturefacile-network
 networks:

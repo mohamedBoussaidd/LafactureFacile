@@ -15,30 +15,30 @@ COPY src ./src
 RUN apk update && apk add --no-cache
 
 # Compiler et packager l'application
-RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
+RUN mvn clean package -Dmaven.test.skip=true
 
 # Étape finale (image pour l'exécution)
 FROM eclipse-temurin:17-alpine
 
 # Utiliser addgroup et adduser au lieu de groupadd et useradd
-# RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
-# RUN addgroup -g 998 docker && addgroup lffappuser docker
+RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+RUN addgroup -g 998 docker && addgroup lffappuser docker
 
 # Créer le répertoire où les PDF seront enregistrés et donner les permissions à l'utilisateur lffappuser
-# RUN mkdir -p /app/pdfs && \
-#     chown -R lffappuser:lffusergroup /app/pdfs && \
-#     chmod -R 750 /app/pdfs
+RUN mkdir -p /app/pdfs && \
+    chown -R lffappuser:lffusergroup /app/pdfs && \
+    chmod -R 750 /app/pdfs
 
 # Copier l'artefact généré par Maven
 COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Passer à l'utilisateur myuser
-# USER lffappuser
+USER lffappuser
 
 
 # Assurer les permissions sur l'artefact JAR généré
-# RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
-#     chmod 755 /app/lafacturefacile-0.0.1-SNAPSHOT.jar
+RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
+    chmod 755 /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8080
