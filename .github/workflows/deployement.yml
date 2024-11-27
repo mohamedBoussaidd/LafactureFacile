@@ -32,7 +32,7 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{secrets.DCK_USERNAMED}}
+          username: ${{secrets.DCK_USERNAME}}
           password: ${{secrets.DCK_PASSWORD}}
       - name: Build and push
         uses: docker/build-push-action@v6
