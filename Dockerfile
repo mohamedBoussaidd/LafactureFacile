@@ -24,21 +24,21 @@ FROM eclipse-temurin:17-alpine
 RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
 RUN addgroup -g 998 docker && addgroup lffappuser docker
 
+
+# Copier l'artefact généré par Maven
+COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
+
 # Créer le répertoire où les PDF seront enregistrés et donner les permissions à l'utilisateur lffappuser
 RUN mkdir -p /app/pdfs && \
     chown -R lffappuser:lffusergroup /app/pdfs && \
     chmod -R 750 /app/pdfs
 
-# Copier l'artefact généré par Maven
-COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
+    # Assurer les permissions sur l'artefact JAR généré
+RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
+    chmod 755 /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Passer à l'utilisateur myuser
 USER lffappuser
-
-
-# Assurer les permissions sur l'artefact JAR généré
-RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
-    chmod 755 /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8080
