@@ -19,6 +19,7 @@ COPY src ./src
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
+RUN addgroup -g 998 docker && usermod -aG docker -G lffappuser
 
 # Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
 # RUN mkdir -p /home/lffappuser/.m2
@@ -31,7 +32,7 @@ RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
 FROM eclipse-temurin:17-alpine
 
 # Utiliser addgroup et adduser au lieu de groupadd et useradd
-RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+# RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
 
 # Créer le répertoire où les PDF seront enregistrés et donner les permissions à l'utilisateur lffappuser
 RUN mkdir -p /app/pdfs && \
