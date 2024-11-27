@@ -11,9 +11,13 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
+# Utiliser addgroup et adduser au lieu de groupadd et useradd
+RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+
 # Changer les permissions pour l'utilisateur lffappuser
 RUN chown -R lffappuser:lffusergroup /app
 RUN chmod -R 755 /app
+
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
@@ -27,20 +31,12 @@ RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
 # Étape finale (image pour l'exécution)
 FROM eclipse-temurin:17-alpine
 
-# Créer un utilisateur et un groupe
-# RUN groupadd -r lffusergroup && useradd -r -g lffusergroup -m lffappuser
-# Utiliser addgroup et adduser au lieu de groupadd et useradd
-RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
-
 # Créer le répertoire où les PDF seront enregistrés
 RUN mkdir -p /app/pdfs
 
 # Donner les permissions nécessaires sur le répertoire
 RUN chown -R lffappuser:lffusergroup /app/pdfs
 RUN chmod -R 750 /app/pdfs
-
-
-
 
 # Passer à l'utilisateur myuser
 USER lffappuser
