@@ -11,19 +11,19 @@ RUN mvn dependency:go-offline -B && mvn clean
 # Copier les sources (seront remplacées par le volume dans Docker Compose)
 COPY src ./src
 
-# Utiliser addgroup et adduser au lieu de groupadd et useradd
-RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+# # Utiliser addgroup et adduser au lieu de groupadd et useradd
+# RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
 
-# Changer les permissions pour l'utilisateur lffappuser
-RUN chown -R lffappuser:lffusergroup /app
-RUN chmod -R 755 /app
+# # Changer les permissions pour l'utilisateur lffappuser
+# RUN chown -R lffappuser:lffusergroup /app
+# RUN chmod -R 755 /app
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
-# Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
-RUN mkdir -p /home/lffappuser/.m2
-RUN chown -R lffappuser:lffusergroup /home/lffappuser/.m2
+# # Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
+# RUN mkdir -p /home/lffappuser/.m2
+# RUN chown -R lffappuser:lffusergroup /home/lffappuser/.m2
 
 # Compiler et packager l'application
 RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
@@ -31,18 +31,24 @@ RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
 # Étape finale (image pour l'exécution)
 FROM eclipse-temurin:17-alpine
 
+# Utiliser addgroup et adduser au lieu de groupadd et useradd
+RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+
 # Créer le répertoire où les PDF seront enregistrés
 RUN mkdir -p /app/pdfs
 
 # Donner les permissions nécessaires sur le répertoire
 RUN chown -R lffappuser:lffusergroup /app/pdfs
+RUN chown -R lffappuser:lffusergroup /app
 RUN chmod -R 750 /app/pdfs
+RUN chmod -R 755 /app
+
+# Copier l'artefact généré par Maven
+COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Passer à l'utilisateur myuser
 USER lffappuser
 
-# Copier l'artefact généré par Maven
-COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
 # Assurer les permissions sur l'artefact JAR généré
 RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar
