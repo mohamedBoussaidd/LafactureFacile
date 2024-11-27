@@ -12,17 +12,17 @@ RUN mvn dependency:go-offline -B && mvn clean
 COPY src ./src
 
 # Utiliser addgroup et adduser au lieu de groupadd et useradd
-RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
+# RUN addgroup -S lffusergroup && adduser -S lffappuser -G lffusergroup
 
-RUN chown -R lffappuser:lffusergroup /app \
-    chmod -R 755 /app
+# RUN chown -R lffappuser:lffusergroup /app \
+#     chmod -R 755 /app
 
 # Installer les utilitaires nécessaires pour ajouter un utilisateur et un groupe (shadow)
 RUN apk update && apk add --no-cache bash
 
 # Assurez-vous que l'utilisateur peut utiliser le répertoire Maven (.m2)
-RUN mkdir -p /home/lffappuser/.m2
-RUN chown -R lffappuser:lffusergroup /home/lffappuser/.m2
+# RUN mkdir -p /home/lffappuser/.m2
+# RUN chown -R lffappuser:lffusergroup /home/lffappuser/.m2
 
 # Compiler et packager l'application
 RUN mvn clean package spring-boot:build-image -Dmaven.test.skip=true
