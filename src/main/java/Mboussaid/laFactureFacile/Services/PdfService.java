@@ -1,5 +1,6 @@
 package Mboussaid.laFactureFacile.Services;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -27,9 +28,13 @@ import Mboussaid.laFactureFacile.Models.User;
 
 @Service
 public class PdfService {
-
+        @Value("${file.upload-dir}")
+        private String uploadDir;
+        private final String SUFFIXPDF = ".pdf";
         public File createPdf(Invoice invoice, User user) throws IOException {
-                File tempFile = File.createTempFile("momo", ".pdf");
+                String fileName = user.getName() + user.getId() + invoice.getCustomerName() + invoice.getInvoiceNumber() + this.SUFFIXPDF;
+
+                File tempFile = new File(this.uploadDir, fileName);
 
                 try (FileOutputStream fos = new FileOutputStream(tempFile);
                                 PdfWriter writer = new PdfWriter(fos);

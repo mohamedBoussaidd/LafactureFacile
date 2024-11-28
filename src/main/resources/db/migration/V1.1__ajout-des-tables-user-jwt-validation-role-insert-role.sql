@@ -42,16 +42,25 @@ CREATE Table IF NOT EXISTS "user_roles"(
     foreign key (user_entity_id) references "user_entity"(id),
     foreign key (roles_id) references "roles"(id)
 );
+CREATE TABLE IF NOT EXISTS "file_info"(
+    id serial primary key,
+    file_name varchar(100) not null,
+    file_type varchar(40) not null,
+    creation_date TIMESTAMPTZ not null,
+    expiration_date TIMESTAMPTZ not null
+);
 CREATE TABLE IF NOT EXISTS "invoice_info"(
     id serial primary key,
     invoice_number varchar(50) not null,
     invoice_customer varchar(40) not null,
-    invoice_date varchar(50) not null,
+    invoice_date TIMESTAMPTZ not null,
     invoice_amount varchar(30) not null,
-    invoice_expir_date varchar(50) not null,
+    invoice_expir_date TIMESTAMPTZ not null,
     status varchar(50) not null,
     user_id integer not null,
-    FOREIGN KEY (user_id) REFERENCES user_entity(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user_entity(id) ON DELETE CASCADE,
+    file_id integer not null,
+    CONSTRAINT fk_file FOREIGN KEY (file_id) REFERENCES file_info(id) ON DELETE CASCADE
 );
 INSERT INTO "roles" (name) VALUES ('ROLE_MODERATOR')
 ON CONFLICT (name) DO NOTHING;

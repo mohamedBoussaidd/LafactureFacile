@@ -1,5 +1,6 @@
 package Mboussaid.laFactureFacile.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,10 +14,10 @@ import Mboussaid.laFactureFacile.Models.User;
 public interface InvoiceInfoRepository extends JpaRepository<InvoiceInfo, Integer> {
     Optional<InvoiceInfo> findByInvoiceNumber(String invoiceNumber);
     Optional<InvoiceInfo> findByInvoiceCustomer(String invoiceCustomer);
-    Optional<InvoiceInfo> findByInvoiceDate(String invoiceDate);
+    Optional<InvoiceInfo> findByInvoiceDate(ZonedDateTime invoiceDate);
     Optional<InvoiceInfo> findByInvoiceAmount(String invoiceAmount);
     List<InvoiceInfo> findByUser(User user);
     void deleteAllByInvoiceNumber(String invoiceNumber);
     void deleteAllByInvoiceCustomer(String invoiceCustomer);
-    void deleteAllByInvoiceDate(String invoiceDate);
+    void deleteAllByInvoiceDate(ZonedDateTime invoiceDate);
 }

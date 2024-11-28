@@ -2,13 +2,18 @@ package Mboussaid.laFactureFacile.Services;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.Models.Interface.FileStorage;
 
 @Service
@@ -18,44 +23,42 @@ public class FileStorageService implements FileStorage {
     private String uploadDir;
 
     @Override
-    public String storeFile(File file) {
+    public CustomResponseEntity<?> storeFile(File file) {
         try {
             // Créer le répertoire si nécessaire
             File directory = new File(uploadDir);
-            System.out.println( "directory : " + directory);
-            System.out.println( "uploadDir : " + uploadDir);
             if (!directory.exists()) {
                 directory.mkdirs(); // Crée tous les répertoires nécessaires
             }
-    
+
             // Construire le chemin du fichier de destination
             Path filePath = Paths.get(uploadDir, file.getName());
-    
+
             // Vérifier si le fichier de destination existe déjà
             if (Files.exists(filePath)) {
-                System.out.println("Le fichier existe déjà : " + filePath);
-                // Vous pouvez choisir de renommer le fichier ou de le supprimer, par exemple
-                // return file.getName(); // Pour retourner le nom d'origine si le fichier existe déjà
+                return CustomResponseEntity.error(HttpStatus.CONFLICT.value(), "Le fichier existe déjà !!");
             }
-    
+
             // Copier le fichier
             Files.copy(file.toPath(), filePath);
-            return file.getName(); // Retourner le nom du fichier enregistré
-    
+            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Fichier enregistre !!");
         } catch (IOException e) {
-            throw new RuntimeException("Could not store the file. Error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected error occurred. Error: " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'enregistrement du fichier: " + e.getMessage());
         }
     }
 
     @Override
-    public byte[] readFile(String fileName) {
+    public Resource readFile(String fileName) {
         try {
             Path filePath = Paths.get(uploadDir, fileName);
-            return Files.readAllBytes(filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la lecture du fichier: " + e.getMessage());
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
         }
     }
 

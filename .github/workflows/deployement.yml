@@ -39,21 +39,6 @@ jobs:
         with:
           push: true
           tags: mohamedd69/${{env.NAME}}
-      # - name: setup java version
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: 'temurin' # See 'Supported distributions' for available options
-      #     java-version: '17'
-      #  # Accorder les permissions d'exécution au fichier mvnw
-      # - name: Give execute permission to mvnw
-      #   run: chmod +x ./mvnw
-      # - name: Generation et push image
-      #   run: |
-      #     ./mvnw clean package spring-boot:build-image \
-      #     -Ddocker.publishRegistry.username=${{secrets.DCK_USERNAME}} \
-      #     -Ddocker.publishRegistry.password=${{secrets.DCK_PASSWORD}} \
-      #     -Dspring-boot.build-image.publish=true \
-      #     -Dmaven.test.skip=true
   run-container:
     name: run container
     runs-on: ubuntu-latest

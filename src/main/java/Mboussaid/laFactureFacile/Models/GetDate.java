@@ -28,4 +28,7 @@ public class GetDate {
         System.out.println(ZonedDateTime.now(ZONE_ID));
         return ZonedDateTime.now(ZONE_ID);
     }
+    public static ZonedDateTime getZonedDateTimeFromString(String date) {
+        return ZonedDateTime.parse(date);
+    }
 }

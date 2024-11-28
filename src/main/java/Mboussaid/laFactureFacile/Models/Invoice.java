@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 // import java.time.Instant;
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class Invoice {
     private String customerEmail;
     private String customerAddress;
     private String customerPhone;
-    private String creationDate;
-    private String expirationDate;
+    private ZonedDateTime creationDate;
+    private ZonedDateTime expirationDate;
     private List<Items> items;
     private BigDecimal amountHT;
     private BigDecimal amountTTC;
