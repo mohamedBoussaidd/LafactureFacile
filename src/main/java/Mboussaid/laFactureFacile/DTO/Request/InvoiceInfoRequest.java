@@ -1,5 +1,6 @@
 package Mboussaid.laFactureFacile.DTO.Request;
 
+import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +15,5 @@ public class InvoiceInfoRequest {
     private String invoiceDate;
     private String invoiceExpirDate;
     private String invoiceAmount;
-    private String status;
+    private EStatusInvoice status;
 }

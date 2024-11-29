@@ -4,9 +4,12 @@ import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,8 +46,9 @@ public class InvoiceInfo {
     private ZonedDateTime invoiceExpirDate;
     @Column(name = "invoice_amount")
     private String invoiceAmount;
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private EStatusInvoice status;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "file_id", referencedColumnName = "id")
     private FileInfo file;

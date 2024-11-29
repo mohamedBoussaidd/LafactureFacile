@@ -2,6 +2,7 @@ package Mboussaid.laFactureFacile.Models;
 
 import java.util.Set;
 
+import Mboussaid.laFactureFacile.Models.ENUM.ERole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

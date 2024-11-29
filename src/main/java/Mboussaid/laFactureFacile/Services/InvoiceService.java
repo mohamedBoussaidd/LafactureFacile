@@ -14,6 +14,7 @@ import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
+import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
 
@@ -82,8 +83,8 @@ public class InvoiceService {
                                 .customerAddress(invoiceRequest.getCustomerAddress())
                                 .customerPhone(invoiceRequest.getCustomerPhone())
                                 .creationDate(GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate()))
-                                .expirationDate(invoiceRequest.getExpirationDate() != ""
-                                                ? GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate())
+                                .expirationDate(invoiceRequest.getExpirationDate() != "" && GetDate.getZonedDateTimeFromString(invoiceRequest.getExpirationDate()).isAfter(GetDate.getNow())
+                                                ? GetDate.getZonedDateTimeFromString(invoiceRequest.getExpirationDate())
                                                 : GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate())
                                                                 .plus(20, java.time.temporal.ChronoUnit.DAYS))// 20
                                                                                                               // jours
@@ -180,6 +181,8 @@ public class InvoiceService {
                 String email = invoice.email();
                 
                 this.notificationService.sendNotificationPdfInvoice(email, file,invoiceInfo);
+                invoiceInfo.setStatus(EStatusInvoice.ENVOYER);
+                this.invoiceInfoRepository.save(invoiceInfo);
                 return CustomResponseEntity.success(HttpStatus.OK.value(), "La facture a été envoyée avec succès");
         }
 }

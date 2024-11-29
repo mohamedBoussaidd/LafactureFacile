@@ -1,4 +1,4 @@
-package Mboussaid.laFactureFacile.Models;
+package Mboussaid.laFactureFacile.Models.ENUM;
 
 public enum ERole {
     ROLE_USER,
