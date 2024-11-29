@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
+import Mboussaid.laFactureFacile.DTO.Request.InvoiceForSendEmailRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.FileInfo;
@@ -97,6 +98,10 @@ public class InvoiceController {
     @PostMapping("updateInvoice")
     public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoiceInfo) {
         return this.invoiceService.updateInvoice(invoiceInfo);
+    }
+    @PostMapping("sendInvoice")
+    public CustomResponseEntity<?> sendInvoice(@RequestBody InvoiceForSendEmailRequest invoice) {
+        return this.invoiceService.sendInvoice(invoice);
     }
 
 }

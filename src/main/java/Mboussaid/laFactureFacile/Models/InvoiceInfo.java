@@ -35,6 +35,8 @@ public class InvoiceInfo {
     private String invoiceNumber;
     @Column(name = "invoice_customer")
     private String invoiceCustomer;
+    @Column(name = "invoice_customer_email") 
+    private String invoiceCustomerEmail;
     @Column(name = "invoice_date")
     private ZonedDateTime invoiceDate;
     @Column(name = "invoice_expir_date")

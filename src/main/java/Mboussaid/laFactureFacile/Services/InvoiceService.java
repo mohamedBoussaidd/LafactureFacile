@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
+import Mboussaid.laFactureFacile.DTO.Request.InvoiceForSendEmailRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.GetDate;
@@ -34,14 +35,16 @@ public class InvoiceService {
         private final UserRepository userRepository;
         private final InvoiceInfoRepository invoiceInfoRepository;
         private final FileStorageService fileStorageService;
+        private final NotificationService notificationService;
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
         public InvoiceService(UserRepository userRepository, InvoiceInfoRepository invoiceInfoRepository,
-                        FileStorageService fileStorageService) {
+                        FileStorageService fileStorageService, NotificationService notificationService) {
                 this.userRepository = userRepository;
                 this.invoiceInfoRepository = invoiceInfoRepository;
                 this.fileStorageService = fileStorageService;
+                this.notificationService = notificationService;
         }
 
         public Map<String, Object> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
@@ -98,6 +101,7 @@ public class InvoiceService {
 
                 InvoiceInfo invoiceInfo = new InvoiceInfo();
                 invoiceInfo.setInvoiceCustomer(invoice.getCustomerName());
+                invoiceInfo.setInvoiceCustomerEmail(invoice.getCustomerEmail());
                 invoiceInfo.setInvoiceNumber(invoice.getInvoiceNumber());
                 invoiceInfo.setInvoiceDate(invoice.getCreationDate());
                 invoiceInfo.setInvoiceExpirDate(invoice.getExpirationDate());
@@ -160,5 +164,22 @@ public class InvoiceService {
                 InvoiceInfo invoiceInfo = OptionalInvoiceInfo.get();
                 String filename = invoiceInfo.getFile().getName();
                 return this.fileStorageService.readFile(filename);
+        }
+        public CustomResponseEntity<?> sendInvoice(InvoiceForSendEmailRequest invoice) {
+                Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoice.id());
+                if (optionalInvoiceInfo.isEmpty()) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
+                                        "Un probleme est survenu lors de l'envoi de la facture");
+                }
+                InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
+                String filename = invoiceInfo.getFile().getName();
+                Resource file = this.fileStorageService.readFile(filename);
+                if(file == null) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Un probleme est survenu lors de l'envoi de la facture");
+                }
+                String email = invoice.email();
+                
+                this.notificationService.sendNotificationPdfInvoice(email, file,invoiceInfo);
+                return CustomResponseEntity.success(HttpStatus.OK.value(), "La facture a été envoyée avec succès");
         }
 }

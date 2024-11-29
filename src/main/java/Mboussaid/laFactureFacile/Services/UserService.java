@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -105,7 +106,7 @@ public class UserService implements UserDetailsService {
         }
         /* creation de l'utilisateur a ajouter en bdd */
         User userForRegister = new User();
-        userForRegister.setName(user.getName());
+        userForRegister.setName(StringUtils.capitalizeFirstLetter(user.getName()));
         userForRegister.setEmail(user.getEmail());
         /* encodage du mot de passe */
         userForRegister.setPassword(this.encoder.encode(user.getPassword()));
@@ -132,8 +133,8 @@ public class UserService implements UserDetailsService {
             return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),"Un probleme est survenu lors de la mise à jour de votre profil !!");
         }
         User user = optionalUser.get();
-        user.setName(userRequest.getName());
-        user.setFirstname(userRequest.getFirstname());
+        user.setName(StringUtils.capitalizeFirstLetter(userRequest.getName()));
+        user.setFirstname(StringUtils.capitalizeFirstLetter(userRequest.getFirstname()));
         user.setAdresse(userRequest.getAddress());
         user.setCity(userRequest.getCity());
         user.setPostalcode(userRequest.getPostalCode());

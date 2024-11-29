@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS "invoice_info"(
     id serial primary key,
     invoice_number varchar(50) not null,
     invoice_customer varchar(40) not null,
+    invoice_customer_email varchar(200) not null,
     invoice_date TIMESTAMPTZ not null,
     invoice_amount varchar(30) not null,
     invoice_expir_date TIMESTAMPTZ not null,
