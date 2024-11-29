@@ -93,4 +93,5 @@ public class ConfigurationSecurityApplication {
         daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
         return daoAuthenticationProvider;
     }
+    
 }
