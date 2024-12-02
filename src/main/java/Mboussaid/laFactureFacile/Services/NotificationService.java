@@ -89,7 +89,7 @@ public class NotificationService {
         try {
             MimeMessage message = this.javaMailSender.createMimeMessage();
             MimeMessageHelper mail = new MimeMessageHelper(message, true);
-            mail.setTo(email);
+            mail.setTo(new String[]{email, invoiceInfo.getUser().getEmail()});
             mail.setSubject("Votre facture");
             String msg = String.format(
                     "Bonjour " + StringUtils.capitalizeFirstLetter(invoiceInfo.getInvoiceCustomer()) + ",\n\n"
