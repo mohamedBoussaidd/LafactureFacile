@@ -103,5 +103,9 @@ public class InvoiceController {
     public CustomResponseEntity<?> sendInvoice(@RequestBody InvoiceForSendEmailRequest invoice) {
         return this.invoiceService.sendInvoice(invoice);
     }
+    @PostMapping("relaunchCustomer")
+    public CustomResponseEntity<?> relaunchCustomer(@RequestBody InvoiceForSendEmailRequest invoice) {
+        return this.invoiceService.relaunchCustomer(invoice);
+    }
 
 }

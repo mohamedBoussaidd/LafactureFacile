@@ -9,4 +9,5 @@ public enum EStatusInvoice {
     RETARD,
     ANNULEE,
     CREER,
+    RELANCER,
 }

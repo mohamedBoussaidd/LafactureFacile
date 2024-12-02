@@ -185,4 +185,22 @@ public class InvoiceService {
                 this.invoiceInfoRepository.save(invoiceInfo);
                 return CustomResponseEntity.success(HttpStatus.OK.value(), "La facture a été envoyée avec succès");
         }
+        public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoice){
+                Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoice.id());
+                if (optionalInvoiceInfo.isEmpty()) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
+                                        "Un probleme est survenu lors de l'envoi de la facture");
+                }
+                InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
+                String filename = invoiceInfo.getFile().getName();
+                Resource file = this.fileStorageService.readFile(filename);
+                if(file == null) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Un probleme est survenu lors de l'envoi de la facture");
+                }
+                String email = invoice.email();
+                this.notificationService.sendNotificationRelanceInvoice(email, file, invoiceInfo);
+                invoiceInfo.setStatus(EStatusInvoice.RELANCER);
+                this.invoiceInfoRepository.save(invoiceInfo);
+                return CustomResponseEntity.success(HttpStatus.OK.value(), "La relance a été envoyée avec succès");
+        }
 }
