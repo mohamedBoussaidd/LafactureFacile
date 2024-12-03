@@ -64,7 +64,7 @@ public class InvoiceService {
                 List<Items> items = new ArrayStack<>();
                 invoiceRequest.getItems().forEach(item -> {
                         items.add(Items.builder()
-                                        .name(item.getDescription())
+                                        .productName(item.getDescription())
                                         .priceHT(BigDecimal.valueOf(item.getPriceHT()))
                                         .priceTTC(BigDecimal.valueOf(item.getPriceHT() * item.getQuantity()
                                                         * ((double) item.getTax() / 100 + 1)))
@@ -100,7 +100,9 @@ public class InvoiceService {
                                 .amountTTC(amountTTC)
                                 .build();
                 User principalUser = user.get();
-                Integer numberOfInvoiceInfo = principalUser.getInvoicesInfo().size();
+                // Integer numberOfInvoiceInfo = principalUser.getInvoicesInfo().size();
+                List<InvoiceInfo> listInvoiceInfo = this.invoiceInfoRepository.findInvoiceInfoWithoutStatusAttente(EStatusInvoice.ATTENTE , principalUser.getId());
+                Integer numberOfInvoiceInfo = listInvoiceInfo.size();
                 if (invoiceRequest.getInvoiceNumber().equals("")) {
                         invoice.setInvoiceNumber(getNumberInvoice(invoice, numberOfInvoiceInfo));
                 } else {

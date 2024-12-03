@@ -190,7 +190,7 @@ public class PdfService {
                                 .setFontColor(new DeviceRgb(255, 250, 240)));
                 NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.FRANCE);
                 for (Items item : invoice.getItems()) {
-                        infoProduit.addCell(new Cell().add(new Paragraph(item.getName()))
+                        infoProduit.addCell(new Cell().add(new Paragraph(item.getProductName()))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
