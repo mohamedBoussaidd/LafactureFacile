@@ -17,13 +17,16 @@ import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -83,11 +86,15 @@ public class InvoiceService {
                                 .customerAddress(invoiceRequest.getCustomerAddress())
                                 .customerPhone(invoiceRequest.getCustomerPhone())
                                 .creationDate(GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate()))
-                                .expirationDate(invoiceRequest.getExpirationDate() != "" && GetDate.getZonedDateTimeFromString(invoiceRequest.getExpirationDate()).isAfter(GetDate.getNow())
-                                                ? GetDate.getZonedDateTimeFromString(invoiceRequest.getExpirationDate())
-                                                : GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate())
-                                                                .plus(20, java.time.temporal.ChronoUnit.DAYS))// 20
-                                                                                                              // jours
+                                .expirationDate(invoiceRequest.getExpirationDate() != "" && GetDate
+                                                .getZonedDateTimeFromString(invoiceRequest.getExpirationDate())
+                                                .isAfter(GetDate.getNow())
+                                                                ? GetDate.getZonedDateTimeFromString(
+                                                                                invoiceRequest.getExpirationDate())
+                                                                : GetDate.getZonedDateTimeFromString(
+                                                                                invoiceRequest.getCreationDate())
+                                                                                .plus(20, java.time.temporal.ChronoUnit.DAYS))// 20
+                                                                                                                              // jours
                                 .items(items)
                                 .amountHT(amountHT)
                                 .amountTTC(amountTTC)
@@ -166,6 +173,7 @@ public class InvoiceService {
                 String filename = invoiceInfo.getFile().getName();
                 return this.fileStorageService.readFile(filename);
         }
+
         public CustomResponseEntity<?> sendInvoice(InvoiceForSendEmailRequest invoice) {
                 Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoice.id());
                 if (optionalInvoiceInfo.isEmpty()) {
@@ -175,17 +183,19 @@ public class InvoiceService {
                 InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
                 String filename = invoiceInfo.getFile().getName();
                 Resource file = this.fileStorageService.readFile(filename);
-                if(file == null) {
-                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Un probleme est survenu lors de l'envoi de la facture");
+                if (file == null) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
+                                        "Un probleme est survenu lors de l'envoi de la facture");
                 }
                 String email = invoice.email();
-                
-                this.notificationService.sendNotificationPdfInvoice(email, file,invoiceInfo);
-                invoiceInfo.setStatus(EStatusInvoice.ENVOYER);
+
+                this.notificationService.sendNotificationPdfInvoice(email, file, invoiceInfo);
+                invoiceInfo.setStatus(EStatusInvoice.ATTENTE);
                 this.invoiceInfoRepository.save(invoiceInfo);
                 return CustomResponseEntity.success(HttpStatus.OK.value(), "La facture a été envoyée avec succès");
         }
-        public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoice){
+
+        public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoice) {
                 Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoice.id());
                 if (optionalInvoiceInfo.isEmpty()) {
                         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
@@ -194,8 +204,9 @@ public class InvoiceService {
                 InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
                 String filename = invoiceInfo.getFile().getName();
                 Resource file = this.fileStorageService.readFile(filename);
-                if(file == null) {
-                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Un probleme est survenu lors de l'envoi de la facture");
+                if (file == null) {
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
+                                        "Un probleme est survenu lors de l'envoi de la facture");
                 }
                 String email = invoice.email();
                 this.notificationService.sendNotificationRelanceInvoice(email, file, invoiceInfo);

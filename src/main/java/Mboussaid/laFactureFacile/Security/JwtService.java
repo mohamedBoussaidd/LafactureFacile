@@ -134,9 +134,4 @@ public class JwtService {
         this.jwtRepository.save(jwt);
     }
 
-    @Scheduled(cron = "@daily")
-    public void removeUselessToken() {
-        log.info("removeUselessToken {}", Instant.now());
-        this.jwtRepository.deleteAllByIsExpiredAndIsBlackListed(true, true);
-    }
 }

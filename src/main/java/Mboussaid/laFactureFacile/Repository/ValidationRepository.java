@@ -15,5 +15,5 @@ public interface ValidationRepository extends JpaRepository<Validation, Integer>
     Optional<Validation> findByUser(User user);
     Optional<Validation> findByUid(String uid);
 
-    void deleteAllByExpiredBefore(ZonedDateTime now);
+    int deleteAllByExpiredBefore(ZonedDateTime now);
 }

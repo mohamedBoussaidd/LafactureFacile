@@ -76,9 +76,4 @@ public class ValidationService {
         validationRepository.delete(validation);
     }
 
-    @Scheduled(cron = "0 0/10 * * * *")
-    public void deleteExpired() {
-        log.info("suppression des validations expirées {}", GetDate.getNow());
-        this.validationRepository.deleteAllByExpiredBefore(GetDate.getNow());
-    }
 }
