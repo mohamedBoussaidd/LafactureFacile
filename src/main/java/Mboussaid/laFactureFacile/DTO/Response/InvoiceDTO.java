@@ -3,6 +3,7 @@ package Mboussaid.laFactureFacile.DTO.Response;
 import java.time.ZonedDateTime;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class InvoiceDTO {
     
     private Integer id;

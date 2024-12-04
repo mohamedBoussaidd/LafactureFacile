@@ -39,6 +39,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 
     @Modifying
     @Query("SELECT i FROM Invoice i WHERE i.status != :status AND i.user.id = :id")
-    List<Invoice> findInvoiceWithoutStatusAttente(@Param("status") EStatusInvoice statusInvoice, Integer id);
+    List<Invoice> findInvoiceWithoutThisStatus(@Param("status") EStatusInvoice statusInvoice, Integer id);
     
 }

@@ -46,7 +46,7 @@ public class AuthenticationController {
                 new UsernamePasswordAuthenticationToken(authenticationDTO.username(),
                         authenticationDTO.password()));
         if (authentication.isAuthenticated()) {
-            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Connexion réussie",jwtService.generate(authenticationDTO.username()));
+            return CustomResponseEntity.successWithDataDisplayed(HttpStatus.ACCEPTED.value(), "Connexion réussie",jwtService.generate(authenticationDTO.username()));
         }
         return CustomResponseEntity.error(HttpStatus.UNAUTHORIZED.value(),"Erreur d'authentification");
     }

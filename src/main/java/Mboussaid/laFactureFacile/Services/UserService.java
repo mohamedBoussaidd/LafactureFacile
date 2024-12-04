@@ -72,7 +72,7 @@ public class UserService implements UserDetailsService {
             userDTO.setPostalCode(userBdd.get().getPostalcode());
             userDTO.setSiret(userBdd.get().getSiret());
             userDTO.setTelephone(userBdd.get().getTelephone());
-            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Utilisateur trouvé", userDTO);
+            return CustomResponseEntity.successWithDataHidden(HttpStatus.ACCEPTED.value(), "Utilisateur trouvé", userDTO);
         }
         return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(), "Utilisateur non trouvé");
     }
@@ -120,7 +120,7 @@ public class UserService implements UserDetailsService {
         userForRegister = userRepository.save(userForRegister);
         this.validationService.addValidation(userForRegister);
 
-        return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+        return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(),
                 "Félicitation votre compte est créé. Un email vous a été envoyé. Veuillez vérifier votre boite de réception.");
     }
 
@@ -141,7 +141,7 @@ public class UserService implements UserDetailsService {
         user.setTelephone(userRequest.getPhone());
         user.setSiret(userRequest.getSiret());
         userRepository.save(user);
-        return CustomResponseEntity.success(HttpStatus.CREATED.value(), "Votre profil a été mis à jour");
+        return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(), "Votre profil a été mis à jour");
     }
 
     public void deleteUser(User user) {
@@ -162,7 +162,7 @@ public class UserService implements UserDetailsService {
         validation.setActivation(GetDate.getNow());
         validationRepository.save(validation);
         userRepository.save(UserForActivation);
-        return CustomResponseEntity.success(HttpStatus.CREATED.value(), "Félicitation votre compte est activé");
+        return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(), "Félicitation votre compte est activé");
     }
 
     public boolean isValidUid(String uid) {
@@ -188,7 +188,7 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordCrypte);
             this.userRepository.save(user);
             validationService.deleteValidation(validation);
-            return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+            return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(),
                             "Félicitation votre mot de passe a été modifié");
         }
         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Le code saisie est invalide.");

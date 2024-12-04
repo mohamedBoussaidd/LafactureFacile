@@ -2,6 +2,8 @@ package Mboussaid.laFactureFacile.Models;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,6 +47,7 @@ public class Items {
     @Column(name = "description")
     private String description;
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 }

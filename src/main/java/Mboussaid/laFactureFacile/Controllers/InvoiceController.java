@@ -74,7 +74,7 @@ public class InvoiceController {
         invoice.setFile(fileInfobdd);
         this.invoiceRepository.save(invoice);
 
-        return CustomResponseEntity.success(HttpStatus.CREATED.value(), "La facture a été créée avec succès !!");
+        return CustomResponseEntity.successWithoutDataHidden(HttpStatus.CREATED.value(), "La facture a été créée avec succès !!");
     }
 
     @GetMapping("getInvoice/{IndexOfInvoice}")
@@ -98,7 +98,7 @@ public class InvoiceController {
         return this.invoiceService.updateInvoice(invoiceInfo);
     }
     @PostMapping("sendInvoice")
-    public CustomResponseEntity<?> sendInvoice(@RequestBody InvoiceForSendEmailRequest invoice) {
+    public CustomResponseEntity<?> sendInvoice(@RequestBody InvoiceForSendEmailRequest invoice) throws IOException {
         return this.invoiceService.sendInvoice(invoice);
     }
     @PostMapping("relaunchCustomer")

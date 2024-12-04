@@ -42,7 +42,7 @@ public class FileStorageService implements FileStorage {
             }
             // Copier le fichier
             Files.copy(file.toPath(), filePath);
-            return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Fichier enregistre !!");
+            return CustomResponseEntity.successWithoutDataHidden(HttpStatus.ACCEPTED.value(), "Fichier enregistre !!");
         } catch (IOException e) {
             throw new RuntimeException("Erreur lors de l'enregistrement du fichier: " + e.getMessage());
         }
@@ -50,8 +50,9 @@ public class FileStorageService implements FileStorage {
 
     @Override
     public Resource readFile(String fileName) {
+        String targetDir = fileName.contains("TMP") ? tmpUploadDir : uploadDir;
         try {
-            Path filePath = Paths.get(uploadDir, fileName);
+            Path filePath = Paths.get(targetDir, fileName);
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;

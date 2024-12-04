@@ -43,7 +43,7 @@ public class ValidationService {
             validation.setUid(uid);
             this.validationRepository.save(validation);
             notificationService.sendNotificationActivation(validation);
-            return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+            return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(),
                     "Un email vous a été envoyé. Veuillez vérifier votre boite de réception. Attention ce code est valable 10 minutes !");
         }
         Validation validation = new Validation();
@@ -62,7 +62,7 @@ public class ValidationService {
         validation.setUid(uid);
         validationRepository.save(validation);
         notificationService.sendNotificationActivation(validation);
-        return CustomResponseEntity.success(HttpStatus.CREATED.value(),
+        return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(),
                 "Un email vous a été envoyé. Veuillez vérifier votre boite de réception.  Attention ce code est valable 10 minutes !");
     }
 
