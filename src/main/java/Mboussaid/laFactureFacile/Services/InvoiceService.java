@@ -52,7 +52,8 @@ public class InvoiceService {
 
         public InvoiceService(UserRepository userRepository, InvoiceInfoRepository invoiceInfoRepository,
                         FileStorageService fileStorageService, NotificationService notificationService,
-                        InvoiceRepository invoiceRepository, PdfService pdfService, FileInfoRepository fileInfoRepository) {
+                        InvoiceRepository invoiceRepository, PdfService pdfService,
+                        FileInfoRepository fileInfoRepository) {
                 this.userRepository = userRepository;
                 this.invoiceInfoRepository = invoiceInfoRepository;
                 this.fileStorageService = fileStorageService;
@@ -62,7 +63,7 @@ public class InvoiceService {
                 this.fileInfoRepository = fileInfoRepository;
         }
 
-        public Map<String, Object> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
+        public CustomResponseEntity<?> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
 
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 User userImpl = (User) auth.getPrincipal();
@@ -72,90 +73,20 @@ public class InvoiceService {
                         return null;
                 }
                 User principalUser = user.get();
-                Invoice invoice = Invoice.builder()
-                                .sellerName(principalUser.getName() + " " + principalUser.getFirstname())
-                                .sellerEmail(principalUser.getEmail())
-                                .sellerAddress(principalUser.getAdresse() + "\n " + principalUser.getCity() + "\n "
-                                                + principalUser.getPostalcode())
-                                .sellerSiret(principalUser.getSiret())
-                                .sellerPhone(principalUser.getTelephone())
-                                .customerName(invoiceRequest.getCustomerName())
-                                .customerEmail(invoiceRequest.getCustomerEmail())
-                                .customerAddress(invoiceRequest.getCustomerAddress())
-                                .customerPhone(invoiceRequest.getCustomerPhone())
-                                .creationDate(GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate()))
-                                .expirationDate(invoiceRequest.getExpirationDate() != "" && GetDate
-                                                .getZonedDateTimeFromString(invoiceRequest.getExpirationDate())
-                                                .isAfter(GetDate.getNow())
-                                                                ? GetDate.getZonedDateTimeFromString(
-                                                                                invoiceRequest.getExpirationDate())
-                                                                : GetDate.getZonedDateTimeFromString(
-                                                                                invoiceRequest.getCreationDate())
-                                                                                .plus(20, java.time.temporal.ChronoUnit.DAYS))// 20
-                                                                                                                              // jours
-                                .user(principalUser)
-                                .status(EStatusInvoice.CREER)
-                                .build();
-                if (invoiceRequest.getInvoiceNumber().equals("")) {
-                        invoice.setTmpInvoiceNumber(getTmpInvoiceNumber(invoice));
-                } else {
-                        // A VOIR CAR POSE PEUT ETRE PROBLEME LOGIQUE A REVOIR SI IL INDIQUE UN NUMERO
-                        // DE FACTURE SI IL FAUT L AJOUTER DIRECT AU NUMERO DE FACTURE OU PAS
-                        invoice.setTmpInvoiceNumber(invoiceRequest.getInvoiceNumber());
-                        invoice.setInvoiceNumber(invoiceRequest.getInvoiceNumber());
-                }
-                List<Items> items = new ArrayStack<>();
-                invoiceRequest.getItems().forEach(item -> {
-                        items.add(Items.builder()
-                                        .productName(item.getDescription())
-                                        .priceHT(BigDecimal.valueOf(item.getPriceHT()))
-                                        .priceTTC(BigDecimal.valueOf(item.getPriceHT() * item.getQuantity()
-                                                        * ((double) item.getTax() / 100 + 1)))
-                                        .tax(BigDecimal.valueOf(item.getTax()))
-                                        .quantity(item.getQuantity())
-                                        .totalHT(BigDecimal.valueOf(item.getPriceHT().doubleValue())
-                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
-                                        .totalTTC(BigDecimal.valueOf(item.getPriceTTC().doubleValue())
-                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
-                                        .invoice(invoice)
-                                        .build());
-                        amountTTC = amountTTC.add(new BigDecimal(item.getPriceTTC()));
-                        amountHT = amountHT.add(new BigDecimal(item.getPriceHT()));
-                });
 
-                invoice.setItems(items);
-                invoice.setAmountHT(amountHT);
-                invoice.setAmountTTC(amountTTC);
+                Invoice invoice = preparInvoice(principalUser, invoiceRequest);
+                File pdfFile = this.pdfService.createPdf(invoice, principalUser);
+                fileStorageService.storeFile(pdfFile);
 
-                Map<String, Object> result = new HashMap<>();
-                result.put("user", principalUser);
-                result.put("invoice", invoice);
+                FileInfo fileInfo = preparFileInfo(pdfFile);
+                
+                FileInfo fileInfobdd = this.fileInfoRepository.save(fileInfo);
 
-                return result;
-        }
+                invoice.setFile(fileInfobdd);
+                this.invoiceRepository.save(invoice);
 
-        /* A FAIRE */
-        public Map<String, Object> preparInvoice(User user, Invoice invoice) {
-                return null;
-        }
-
-        public String getNumberInvoice(Invoice invoice, Integer numberOfInvoiceInfo) {
-                Integer realNumber = numberOfInvoiceInfo + 1;
-                String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
-                String base = invoice.getSellerName().substring(0, 3) + invoice.getCustomerName().substring(0, 3)
-                                + actualDate;
-                System.out.println(actualDate + invoice.getCustomerName().substring(0, 3));
-                return base + "--" + realNumber;
-        }
-
-        public String getTmpInvoiceNumber(Invoice invoice) {
-                String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
-                String base = invoice.getSellerName().substring(0, 3) + invoice.getCustomerName().substring(0, 3)
-                                + actualDate;
-                String uniquePart = UUID.randomUUID().toString().substring(0, 8);
-                String finalTmpInvoiceNumber = base + "-" + uniquePart;
-                System.out.println(finalTmpInvoiceNumber);
-                return finalTmpInvoiceNumber;
+                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.CREATED.value(),
+                                "La facture a été créée avec succès !!");
         }
 
         public void deleteInvoice() {
@@ -169,8 +100,9 @@ public class InvoiceService {
                                         "un probleme est survenu lors de la mise à jour de la facture");
                 }
                 Invoice invoice = optionalInvoice.get();
-                ZonedDateTime newExpirationDate = GetDate.getZonedDateTimeFromString(invoiceRequest.getInvoiceExpirDate());
-                if(newExpirationDate.isBefore(invoice.getCreationDate())){
+                ZonedDateTime newExpirationDate = GetDate
+                                .getZonedDateTimeFromString(invoiceRequest.getInvoiceExpirDate());
+                if (newExpirationDate.isBefore(invoice.getCreationDate())) {
                         return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),
                                         "La date d'expiration de la facture doit être supérieure à la date de création");
 
@@ -204,7 +136,8 @@ public class InvoiceService {
                                         .build());
                 });
 
-                return CustomResponseEntity.successWithDataHidden(HttpStatus.OK.value(), "La recuperation des factures a réussi",
+                return CustomResponseEntity.successWithDataHidden(HttpStatus.OK.value(),
+                                "La recuperation des factures a réussi",
                                 result);
         }
 
@@ -262,7 +195,8 @@ public class InvoiceService {
                 invoice.setFile(fileInfobdd);
                 this.invoiceRepository.save(invoice);
 
-                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(), "La facture a été envoyée avec succès");
+                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
+                                "La facture a été envoyée avec succès");
         }
 
         public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoice) {
@@ -282,6 +216,104 @@ public class InvoiceService {
                 this.notificationService.sendNotificationRelanceInvoice(email, file, invoiceInfo);
                 invoiceInfo.setStatus(EStatusInvoice.RELANCER);
                 this.invoiceInfoRepository.save(invoiceInfo);
-                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(), "La relance a été envoyée avec succès");
+                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
+                                "La relance a été envoyée avec succès");
+        }
+
+        /*
+         * @param user
+         * 
+         * @param invoiceRequest
+         * 
+         * @return Invoice
+         * Fonction pour preparer une facture apartir d'une invoiceRequest et un user
+         * crée pour la lisibilité du code
+         */
+        public Invoice preparInvoice(User user, InvoiceRequest invoiceRequest) {
+                Invoice invoice = Invoice.builder()
+                                .sellerName(user.getName() + " " + user.getFirstname())
+                                .sellerEmail(user.getEmail())
+                                .sellerAddress(user.getAdresse() + "\n " + user.getCity() + "\n "
+                                                + user.getPostalcode())
+                                .sellerSiret(user.getSiret())
+                                .sellerPhone(user.getTelephone())
+                                .customerName(invoiceRequest.getCustomerName())
+                                .customerEmail(invoiceRequest.getCustomerEmail())
+                                .customerAddress(invoiceRequest.getCustomerAddress())
+                                .customerPhone(invoiceRequest.getCustomerPhone())
+                                .creationDate(GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate()))
+                                .expirationDate(invoiceRequest.getExpirationDate() != "" && GetDate
+                                                .getZonedDateTimeFromString(invoiceRequest.getExpirationDate())
+                                                .isAfter(GetDate.getNow())
+                                                                ? GetDate.getZonedDateTimeFromString(
+                                                                                invoiceRequest.getExpirationDate())
+                                                                : GetDate.getZonedDateTimeFromString(
+                                                                                invoiceRequest.getCreationDate())
+                                                                                .plus(20, java.time.temporal.ChronoUnit.DAYS))// 20
+                                                                                                                              // jours
+                                .user(user)
+                                .status(EStatusInvoice.CREER)
+                                .build();
+                if (invoiceRequest.getInvoiceNumber().equals("")) {
+                        invoice.setTmpInvoiceNumber(getTmpInvoiceNumber(invoice));
+                } else {
+                        // A VOIR CAR POSE PEUT ETRE PROBLEME LOGIQUE A REVOIR SI IL INDIQUE UN NUMERO
+                        // DE FACTURE SI IL FAUT L AJOUTER DIRECT AU NUMERO DE FACTURE OU PAS
+                        invoice.setTmpInvoiceNumber(invoiceRequest.getInvoiceNumber());
+                        invoice.setInvoiceNumber(invoiceRequest.getInvoiceNumber());
+                }
+                List<Items> items = new ArrayStack<>();
+                invoiceRequest.getItems().forEach(item -> {
+                        items.add(Items.builder()
+                                        .productName(item.getDescription())
+                                        .priceHT(BigDecimal.valueOf(item.getPriceHT()))
+                                        .priceTTC(BigDecimal.valueOf(item.getPriceHT() * item.getQuantity()
+                                                        * ((double) item.getTax() / 100 + 1)))
+                                        .tax(BigDecimal.valueOf(item.getTax()))
+                                        .quantity(item.getQuantity())
+                                        .totalHT(BigDecimal.valueOf(item.getPriceHT().doubleValue())
+                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                                        .totalTTC(BigDecimal.valueOf(item.getPriceTTC().doubleValue())
+                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                                        .invoice(invoice)
+                                        .build());
+                        amountTTC = amountTTC.add(new BigDecimal(item.getPriceTTC()));
+                        amountHT = amountHT.add(new BigDecimal(item.getPriceHT()));
+                });
+
+                invoice.setItems(items);
+                invoice.setAmountHT(amountHT);
+                invoice.setAmountTTC(amountTTC);
+                return invoice;
+        }
+
+        public FileInfo preparFileInfo(File pdfFile) {
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.setName(pdfFile.getName());
+                fileInfo.setType(fileInfo.getExtension(pdfFile.getName()));
+                fileInfo.setCreationDate(GetDate.getNow());
+                if (fileInfo.getCreationDate() == null) {
+                        throw new RuntimeException("La date de création du fichier est invalid");
+                }
+                fileInfo.setExpirationDate(fileInfo.getCreationDate().plus(10, java.time.temporal.ChronoUnit.DAYS));
+                return fileInfo;
+        }
+        public String getNumberInvoice(Invoice invoice, Integer numberOfInvoiceInfo) {
+                Integer realNumber = numberOfInvoiceInfo + 1;
+                String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
+                String base = invoice.getSellerName().substring(0, 3) + invoice.getCustomerName().substring(0, 3)
+                                + actualDate;
+                System.out.println(actualDate + invoice.getCustomerName().substring(0, 3));
+                return base + "--" + realNumber;
+        }
+
+        public String getTmpInvoiceNumber(Invoice invoice) {
+                String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
+                String base = invoice.getSellerName().substring(0, 3) + invoice.getCustomerName().substring(0, 3)
+                                + actualDate;
+                String uniquePart = UUID.randomUUID().toString().substring(0, 8);
+                String finalTmpInvoiceNumber = base + "-" + uniquePart;
+                System.out.println(finalTmpInvoiceNumber);
+                return finalTmpInvoiceNumber;
         }
 }
