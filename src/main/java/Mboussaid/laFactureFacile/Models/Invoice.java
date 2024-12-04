@@ -76,7 +76,7 @@ public class Invoice {
     @JsonIgnore
     private User user;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "file_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "file_id", referencedColumnName = "id")
     private FileInfo file;
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Items> items;

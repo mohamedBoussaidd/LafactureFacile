@@ -2,10 +2,8 @@ package Mboussaid.laFactureFacile.Services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,16 +23,31 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
+import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
+import Mboussaid.laFactureFacile.Models.GetDate;
 
 @Service
 public class PdfService {
         @Value("${file.upload-dir}")
         private String uploadDir;
-        private final String SUFFIXPDF = ".pdf";
-        public File createPdf(Invoice invoice, User user) throws IOException {
-                String fileName = user.getName() + user.getId() + invoice.getCustomerName() + invoice.getInvoiceNumber() + this.SUFFIXPDF;
+        @Value("${tmpfile.upload-dir}")
+        private String tmpUploadDir;
 
-                File tempFile = new File(this.uploadDir, fileName);
+        private final String SUFFIXPDF = ".pdf";
+
+        public File createPdf(Invoice invoice, User user) throws IOException {
+                // String fileName = null;
+                if (invoice == null || user == null) {
+                        throw new IllegalArgumentException("Invoice and User must not be null");
+                }
+                String fileName = invoice.getStatus() == EStatusInvoice.CREER
+                                ? "TMP" + user.getName() + user.getId() + invoice.getCustomerName()
+                                                + invoice.getTmpInvoiceNumber() + this.SUFFIXPDF
+                                : user.getName() + user.getId() + invoice.getCustomerName()
+                                                + invoice.getInvoiceNumber() + this.SUFFIXPDF;
+                File tempFile = invoice.getStatus() == EStatusInvoice.CREER
+                                ? new File(this.tmpUploadDir, fileName)
+                                : new File(this.uploadDir, fileName);
 
                 try (FileOutputStream fos = new FileOutputStream(tempFile);
                                 PdfWriter writer = new PdfWriter(fos);
@@ -118,11 +131,21 @@ public class PdfService {
         }
 
         public Table infoConfigInvoiceTable(Invoice invoice) {
-                // information de la facture
+                // variable de configuration de la facture
                 float colWidht[] = {
                                 140, 140, 140, 140
                 };
                 Table infoFacture = new Table(colWidht).setHeight(50f);
+                DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.FRANCE);
+                String expirationDate = invoice.getExpirationDate() != null
+                                ? invoice.getExpirationDate().format(formatterDate)
+                                : "Date non définie";
+                String creationDate = invoice.getCreationDate() != null
+                                ? invoice.getCreationDate().format(formatterDate)
+                                : GetDate.getNow().format(formatterDate);
+                String invoiceNumber = invoice.getInvoiceNumber() != null ? invoice.getInvoiceNumber()
+                                : invoice.getTmpInvoiceNumber();
+                String reference = invoice.getId() != null ? invoice.getId().toString() : "Référence non définie";
 
                 infoFacture.addCell(new Cell().add(new Paragraph("No. Facture")).setBorder(Border.NO_BORDER).setBold()
                                 .setTextAlignment(TextAlignment.LEFT));
@@ -132,21 +155,21 @@ public class PdfService {
                                 .setTextAlignment(TextAlignment.LEFT));
                 infoFacture.addCell(new Cell().add(new Paragraph("Référence")).setBorder(Border.NO_BORDER).setBold()
                                 .setTextAlignment(TextAlignment.LEFT));
-
                 // Changement : Ajout du numero de facture
-                infoFacture.addCell(new Cell().add(new Paragraph("" + invoice.getInvoiceNumber()))
+                infoFacture.addCell(new Cell()
+                                .add(new Paragraph(invoiceNumber))
                                 .setBorder(Border.NO_BORDER));
                 // Changement : Ajout de la date d'emission
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
-                infoFacture
-                                .addCell(new Cell().add(new Paragraph("" + dateFormat.format(new Date())))
-                                                .setBorder(Border.NO_BORDER));
+                infoFacture.addCell(new Cell()
+                                .add(new Paragraph(creationDate))
+                                .setBorder(Border.NO_BORDER));
                 // Changement : Ajout de la date d'expiration
-                infoFacture
-                                .addCell(new Cell().add(new Paragraph("" + invoice.getExpirationDate()))
-                                                .setBorder(Border.NO_BORDER));
+                infoFacture.addCell(new Cell()
+                                .add(new Paragraph(expirationDate))
+                                .setBorder(Border.NO_BORDER));
                 // Changement : Ajout de la reference
-                infoFacture.addCell(new Cell().add(new Paragraph("" + invoice.getId()))
+                infoFacture.addCell(new Cell()
+                                .add(new Paragraph(reference))
                                 .setBorder(Border.NO_BORDER));
                 return infoFacture;
         }
@@ -194,27 +217,22 @@ public class PdfService {
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        // .setBackgroundColor(new DeviceRgb(219, 215, 214)).setHeight(40f));
                         infoProduit.addCell(new Cell().add(new Paragraph("" + item.getQuantity()))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        // .setBackgroundColor(new DeviceRgb(219, 215, 214)));
                         infoProduit.addCell(new Cell().add(new Paragraph("" + formatter.format(item.getPriceHT())))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        // .setBackgroundColor(new DeviceRgb(219, 215, 214)));
                         infoProduit.addCell(new Cell().add(new Paragraph("" + item.getTax() + "%"))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        // .setBackgroundColor(new DeviceRgb(219, 215, 214)));
                         infoProduit.addCell(new Cell().add(new Paragraph("" + formatter.format(item.getPriceTTC())))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        // .setBackgroundColor(new DeviceRgb(219, 215, 214)));
                 }
                 return infoProduit;
         }
@@ -262,9 +280,6 @@ public class PdfService {
                 float colWidht[] = {
                                 262, 262
                 };
-                // float colWidht[] = {
-                //                 175, 175, 175
-                // };
                 Table infoFooter = new Table(colWidht)
                                 .setMaxWidth(525)
                                 .setBackgroundColor(new DeviceRgb(100, 149, 237))
@@ -276,14 +291,11 @@ public class PdfService {
                                 .add(new Paragraph("Coordonnées"))
                                 .setBold()
                                 .setBorder(Border.NO_BORDER));
-                // infoFooter.addCell(new Cell(0, 1).add(new Paragraph("Détails bancaires"))
-                //                 .setBold()
-                //                 .setBorder(Border.NO_BORDER));
                 infoFooter.addCell(new Cell(0, 1)
                                 .add(new Paragraph(
                                                 user.getAdresse() + "\n" + user.getPostalcode() + " " + user.getCity()
                                                                 + "\n"
-                                                                +"siret: "+ user.getSiret()))
+                                                                + "siret: " + user.getSiret()))
                                 .setBorder(Border.NO_BORDER));
                 infoFooter.addCell(new Cell(0, 1)
                                 .add(new Paragraph(
@@ -291,10 +303,6 @@ public class PdfService {
                                                                 + "\n"
                                                                 + user.getTelephone() + "\n" + user.getEmail()))
                                 .setBorder(Border.NO_BORDER));
-/*                 infoFooter.addCell(new Cell(0, 1)
-                                .add(new Paragraph(
-                                                "IBAN : FR76 3000 3030 3000 0505 0492 004" + "\n" + "BIC : SOGEFRPP"))
-                                .setBorder(Border.NO_BORDER)); */
                 return infoFooter;
         }
 

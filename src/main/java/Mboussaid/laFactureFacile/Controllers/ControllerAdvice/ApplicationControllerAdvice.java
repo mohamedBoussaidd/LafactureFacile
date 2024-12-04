@@ -9,12 +9,8 @@ import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 
-import org.springframework.http.ProblemDetail;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

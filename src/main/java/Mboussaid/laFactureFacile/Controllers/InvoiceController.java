@@ -20,10 +20,9 @@ import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Models.FileInfo;
 import Mboussaid.laFactureFacile.Models.GetDate;
 import Mboussaid.laFactureFacile.Models.Invoice;
-import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Repository.FileInfoRepository;
-import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
+import Mboussaid.laFactureFacile.Repository.InvoiceRepository;
 import Mboussaid.laFactureFacile.Services.FileStorageService;
 import Mboussaid.laFactureFacile.Services.InvoiceService;
 import Mboussaid.laFactureFacile.Services.PdfService;
@@ -38,27 +37,26 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
     private final FileStorageService fileStorageService;
     private final PdfService pdfService;
-    private final InvoiceInfoRepository invoiceInfoRepository;
     private final FileInfoRepository fileInfoRepository;
+    private final InvoiceRepository invoiceRepository;
 
     public InvoiceController(InvoiceService invoiceService, FileStorageService fileStorageService,
-            PdfService pdfService, InvoiceInfoRepository invoiceInfoRepository, FileInfoRepository fileInfoRepository) {
+            PdfService pdfService , FileInfoRepository fileInfoRepository, InvoiceRepository invoiceRepository) {
         this.invoiceService = invoiceService;
         this.fileStorageService = fileStorageService;
         this.pdfService = pdfService;
-        this.invoiceInfoRepository = invoiceInfoRepository;
         this.fileInfoRepository = fileInfoRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
     @PostMapping("/addInvoice")
-    public CustomResponseEntity<?> addInvoice(@RequestBody InvoiceRequest invoice) throws IOException {
-        Map<String, Object> mapresult = this.invoiceService.createInvoice(invoice);
+    public CustomResponseEntity<?> addInvoice(@RequestBody InvoiceRequest invoiceRequest) throws IOException {
+        Map<String, Object> mapresult = this.invoiceService.createInvoice(invoiceRequest);
 
-        Invoice invoiceResult = (Invoice) mapresult.get("invoice");
-        User principalUserResulat = (User) mapresult.get("user");
-        InvoiceInfo invoiceInfoResult = (InvoiceInfo) mapresult.get("invoiceInfo");
+        Invoice invoice = (Invoice) mapresult.get("invoice");
+        User user = (User) mapresult.get("user");
 
-        File pdfFile = this.pdfService.createPdf(invoiceResult, principalUserResulat);
+        File pdfFile = this.pdfService.createPdf(invoice, user);
 
         fileStorageService.storeFile(pdfFile);
 
@@ -73,8 +71,8 @@ public class InvoiceController {
         fileInfo.setExpirationDate(fileInfo.getCreationDate().plus(10, java.time.temporal.ChronoUnit.DAYS));
         FileInfo fileInfobdd = this.fileInfoRepository.save(fileInfo);
 
-        invoiceInfoResult.setFile(fileInfobdd);
-        this.invoiceInfoRepository.save(invoiceInfoResult);
+        invoice.setFile(fileInfobdd);
+        this.invoiceRepository.save(invoice);
 
         return CustomResponseEntity.success(HttpStatus.CREATED.value(), "La facture a été créée avec succès !!");
     }
@@ -91,7 +89,7 @@ public class InvoiceController {
 
     @GetMapping("getInvoiceInfoById/{id}")
     @ResponseBody
-    public CustomResponseEntity<?> getInvoiceInfoById(@PathVariable Integer id) {
+    public CustomResponseEntity<?> getInvoiceInfoByUser(@PathVariable Integer id) {
         return this.invoiceService.getInvoiceInfoByUser(id);
     }
 

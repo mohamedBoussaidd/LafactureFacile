@@ -1,13 +1,10 @@
 package Mboussaid.laFactureFacile.Cron;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import Mboussaid.laFactureFacile.Models.GetDate;
-import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
 import jakarta.transaction.Transactional;

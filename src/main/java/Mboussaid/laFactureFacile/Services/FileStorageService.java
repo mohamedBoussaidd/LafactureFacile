@@ -21,24 +21,25 @@ public class FileStorageService implements FileStorage {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
+    @Value("${tmpfile.upload-dir}")
+    private String tmpUploadDir;
 
     @Override
     public CustomResponseEntity<?> storeFile(File file) {
+        if (file == null || file.getName() == null || file.getName().isEmpty()) {
+            return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Fichier invalide ou non spécifié");
+        }
+        // Déterminer le répertoire de destination selon le nom du fichier si il est temporaire ou definitif
+        String targetDir = file.getName().contains("TMP") ? tmpUploadDir : uploadDir;
+ 
+        Path filePath = Paths.get(targetDir, file.getName());
         try {
             // Créer le répertoire si nécessaire
-            File directory = new File(uploadDir);
-            if (!directory.exists()) {
-                directory.mkdirs(); // Crée tous les répertoires nécessaires
-            }
-
-            // Construire le chemin du fichier de destination
-            Path filePath = Paths.get(uploadDir, file.getName());
-
+            Files.createDirectories(Paths.get(targetDir));
             // Vérifier si le fichier de destination existe déjà
             if (Files.exists(filePath)) {
                 return CustomResponseEntity.error(HttpStatus.CONFLICT.value(), "Le fichier existe déjà !!");
             }
-
             // Copier le fichier
             Files.copy(file.toPath(), filePath);
             return CustomResponseEntity.success(HttpStatus.ACCEPTED.value(), "Fichier enregistre !!");
