@@ -14,6 +14,7 @@ services:
       - JAVA_TOOL_OPTIONS=-Xss200k
       - file.upload-dir=${UPLOAD_DIR}
       - tmpfile.upload-dir=${TMP_UPLOAD_DIR}
+      - app.urlFrontend=${APP_URL_FRONTEND}
     volumes:
       - /var/private_data/pdfs:/app/pdfs
     user: "lffappuser"

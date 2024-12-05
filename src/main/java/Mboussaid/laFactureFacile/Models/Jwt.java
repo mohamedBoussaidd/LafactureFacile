@@ -34,6 +34,6 @@ public class Jwt {
     private boolean isExpired;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE})
-    @JoinColumn(name = "user_entity_id")
+    @JoinColumn(name = "user_id")
     private User user;
 }

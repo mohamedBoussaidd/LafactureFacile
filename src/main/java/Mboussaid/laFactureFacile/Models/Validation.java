@@ -23,7 +23,7 @@ public class Validation {
     private ZonedDateTime activation;
     private String code;
     @OneToOne( cascade = {CascadeType.MERGE, CascadeType.DETACH})
-    @JoinColumn(name = "user_entity_id")
+    @JoinColumn(name = "user_id")
     private User user;
     private String uid;
 

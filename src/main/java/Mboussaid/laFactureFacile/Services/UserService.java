@@ -193,6 +193,9 @@ public class UserService implements UserDetailsService {
         }
         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(), "Le code saisie est invalide.");
     }
+    public boolean isActifAccount(String email) {
+        return this.userRepository.findByEmail(email).get().isActif();
+    }
 
     private boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";

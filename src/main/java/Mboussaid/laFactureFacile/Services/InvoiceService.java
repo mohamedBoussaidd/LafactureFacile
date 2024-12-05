@@ -13,12 +13,10 @@ import Mboussaid.laFactureFacile.DTO.Response.InvoiceDTO;
 import Mboussaid.laFactureFacile.Models.FileInfo;
 import Mboussaid.laFactureFacile.Models.GetDate;
 import Mboussaid.laFactureFacile.Models.Invoice;
-import Mboussaid.laFactureFacile.Models.InvoiceInfo;
 import Mboussaid.laFactureFacile.Models.Items;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
 import Mboussaid.laFactureFacile.Repository.FileInfoRepository;
-import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
 import Mboussaid.laFactureFacile.Repository.InvoiceRepository;
 import Mboussaid.laFactureFacile.Repository.UserRepository;
 
@@ -31,17 +29,14 @@ import org.springframework.http.HttpStatus;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class InvoiceService {
         private final UserRepository userRepository;
-        private final InvoiceInfoRepository invoiceInfoRepository;
         private final FileStorageService fileStorageService;
         private final NotificationService notificationService;
         private final InvoiceRepository invoiceRepository;
@@ -50,12 +45,11 @@ public class InvoiceService {
         private BigDecimal amountHT = new BigDecimal(0);
         private BigDecimal amountTTC = new BigDecimal(0);
 
-        public InvoiceService(UserRepository userRepository, InvoiceInfoRepository invoiceInfoRepository,
+        public InvoiceService(UserRepository userRepository,
                         FileStorageService fileStorageService, NotificationService notificationService,
                         InvoiceRepository invoiceRepository, PdfService pdfService,
                         FileInfoRepository fileInfoRepository) {
                 this.userRepository = userRepository;
-                this.invoiceInfoRepository = invoiceInfoRepository;
                 this.fileStorageService = fileStorageService;
                 this.notificationService = notificationService;
                 this.invoiceRepository = invoiceRepository;
@@ -79,7 +73,7 @@ public class InvoiceService {
                 fileStorageService.storeFile(pdfFile);
 
                 FileInfo fileInfo = preparFileInfo(pdfFile);
-                
+
                 FileInfo fileInfobdd = this.fileInfoRepository.save(fileInfo);
 
                 invoice.setFile(fileInfobdd);
@@ -192,30 +186,33 @@ public class InvoiceService {
                 fileInfo.setExpirationDate(fileInfo.getCreationDate().plus(10, java.time.temporal.ChronoUnit.DAYS));
                 FileInfo fileInfobdd = this.fileInfoRepository.save(fileInfo);
 
-                invoice.setFile(fileInfobdd);
-                this.invoiceRepository.save(invoice);
+                invoiceBdd.setFile(fileInfobdd);
+                this.invoiceRepository.save(invoiceBdd);
+                String filename = invoiceBdd.getFile().getName();
+                Resource file = this.fileStorageService.readFile(filename);
+                this.notificationService.sendNotificationPdfInvoice(invoiceBdd.getCustomerEmail(), file, invoice);
 
                 return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
                                 "La facture a été envoyée avec succès");
         }
 
-        public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoice) {
-                Optional<InvoiceInfo> optionalInvoiceInfo = this.invoiceInfoRepository.findById(invoice.id());
-                if (optionalInvoiceInfo.isEmpty()) {
+        public CustomResponseEntity<?> relaunchCustomer(InvoiceForSendEmailRequest invoiceRequest) {
+                Optional<Invoice> optionalInvoice = this.invoiceRepository.findById(invoiceRequest.id());
+                if (optionalInvoice.isEmpty()) {
                         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
                                         "Un probleme est survenu lors de l'envoi de la facture");
                 }
-                InvoiceInfo invoiceInfo = optionalInvoiceInfo.get();
-                String filename = invoiceInfo.getFile().getName();
+                Invoice invoice = optionalInvoice.get();
+                String filename = invoice.getFile().getName();
                 Resource file = this.fileStorageService.readFile(filename);
                 if (file == null) {
                         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
                                         "Un probleme est survenu lors de l'envoi de la facture");
                 }
-                String email = invoice.email();
-                this.notificationService.sendNotificationRelanceInvoice(email, file, invoiceInfo);
-                invoiceInfo.setStatus(EStatusInvoice.RELANCER);
-                this.invoiceInfoRepository.save(invoiceInfo);
+                String email = invoiceRequest.email();
+                this.notificationService.sendNotificationRelanceInvoice(email, file, invoice);
+                invoice.setStatus(EStatusInvoice.RELANCER);
+                this.invoiceRepository.save(invoice);
                 return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
                                 "La relance a été envoyée avec succès");
         }
@@ -298,6 +295,7 @@ public class InvoiceService {
                 fileInfo.setExpirationDate(fileInfo.getCreationDate().plus(10, java.time.temporal.ChronoUnit.DAYS));
                 return fileInfo;
         }
+
         public String getNumberInvoice(Invoice invoice, Integer numberOfInvoiceInfo) {
                 Integer realNumber = numberOfInvoiceInfo + 1;
                 String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());

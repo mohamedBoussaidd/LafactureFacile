@@ -82,6 +82,7 @@ jobs:
             echo MAIL_PORT="${{ secrets.MAIL_PORT }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo APP_URL_FRONTEND="${{ secrets.APP_URL_FRONTEND }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
             docker exec -u root lafacturefacile-backend sh -c "
               groupadd -r lffusergroup && \

@@ -46,6 +46,9 @@ public class AuthenticationController {
                 new UsernamePasswordAuthenticationToken(authenticationDTO.username(),
                         authenticationDTO.password()));
         if (authentication.isAuthenticated()) {
+            if (!userService.isActifAccount(authenticationDTO.username())) {
+                return CustomResponseEntity.error(HttpStatus.UNAUTHORIZED.value(),"Compte non activé");
+            }
             return CustomResponseEntity.successWithDataDisplayed(HttpStatus.ACCEPTED.value(), "Connexion réussie",jwtService.generate(authenticationDTO.username()));
         }
         return CustomResponseEntity.error(HttpStatus.UNAUTHORIZED.value(),"Erreur d'authentification");

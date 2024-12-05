@@ -50,8 +50,8 @@ public class InvoiceController {
     }
 
     @PostMapping("updateInvoice")
-    public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoiceInfo) {
-        return this.invoiceService.updateInvoice(invoiceInfo);
+    public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoice) {
+        return this.invoiceService.updateInvoice(invoice);
     }
     @PostMapping("sendInvoice")
     public CustomResponseEntity<?> sendInvoice(@RequestBody InvoiceForSendEmailRequest invoice) throws IOException {
