@@ -77,7 +77,11 @@ jobs:
             echo DB_USERNAME="${{ secrets.DB_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             echo UPLOAD_DIR="${{ secrets.UPLOAD_DIR }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
-            cat /opt/applications/lff/${{env.IMAGE}}/.env
+            echo TMP_UPLOAD_DIR="${{ secrets.TMP_UPLOAD_DIR }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo MAIL_HOST="${{ secrets.MAIL_HOST }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo MAIL_PORT="${{ secrets.MAIL_PORT }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
+            echo MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" >> /opt/applications/lff/${{env.IMAGE}}/.env
             docker-compose -f /opt/applications/lff/${{env.IMAGE}}/compose.yml up -d
             docker exec -u root lafacturefacile-backend sh -c "
               groupadd -r lffusergroup && \

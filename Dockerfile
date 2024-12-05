@@ -28,10 +28,13 @@ RUN addgroup -g 998 docker && addgroup lffappuser docker
 # Copier l'artefact généré par Maven
 COPY --from=build /app/target/lafacturefacile-0.0.1-SNAPSHOT.jar /app/lafacturefacile-0.0.1-SNAPSHOT.jar
 
-# Créer le répertoire où les PDF seront enregistrés et donner les permissions à l'utilisateur lffappuser
+# Créer le répertoire où les PDF definitf et temporaire seront enregistrés et donner les permissions à l'utilisateur lffappuser
 RUN mkdir -p /app/pdfs && \
+    mkdir -p /app/pdfs/tmp && \
     chown -R lffappuser:lffusergroup /app/pdfs && \
-    chmod -R 750 /app/pdfs
+    chmod -R 750 /app/pdfs && \
+    chown -R lffappuser:lffusergroup /app/pdfs/tmp && \
+    chmod -R 750 /app/pdfs/tmp
 
     # Assurer les permissions sur l'artefact JAR généré
 RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
@@ -40,8 +43,9 @@ RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
 # Passer à l'utilisateur myuser
 USER lffappuser
 
-# Exposer le port sur lequel l'application va tourner
-EXPOSE 8080
+# Exposer le port sur lequel l'application va tourner et je met une variable d'environnement pour le port
+ENV APP_PORT=8080
+EXPOSE $APP_PORT
 
 # Commande pour lancer Spring Boot
-ENTRYPOINT ["java", "-jar", "/app/lafacturefacile-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "/app/lafacturefacile-0.0.1-SNAPSHOT.jar", "--server.port=${APP_PORT}"]

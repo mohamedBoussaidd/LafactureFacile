@@ -7,8 +7,13 @@ services:
       - spring.datasource.url=${DB_HOST}
       - spring.datasource.username=${DB_USERNAME}
       - spring.datasource.password=${DB_PASSWORD}
+      - spring.mail.host=${MAIL_HOST}
+      - spring.mail.port=${MAIL_PORT}
+      - spring.mail.username=${MAIL_USERNAME}
+      - spring.mail.password=${MAIL_PASSWORD}
       - JAVA_TOOL_OPTIONS=-Xss200k
       - file.upload-dir=${UPLOAD_DIR}
+      - tmpfile.upload-dir=${TMP_UPLOAD_DIR}
     volumes:
       - /var/private_data/pdfs:/app/pdfs
     user: "lffappuser"

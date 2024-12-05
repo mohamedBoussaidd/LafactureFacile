@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
-import Mboussaid.laFactureFacile.Repository.InvoiceInfoRepository;
+import Mboussaid.laFactureFacile.Repository.InvoiceRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,21 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InvoiceCron {
 
-    private final InvoiceInfoRepository invoiceInfoRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    public InvoiceCron(InvoiceInfoRepository invoiceInfoRepository) {
-        this.invoiceInfoRepository = invoiceInfoRepository;
+    public InvoiceCron(InvoiceRepository invoiceRepository) {
+        this.invoiceRepository = invoiceRepository;
     }
 
     /*
      * Met à jour le statut des factures en attente a en retard
      * tous les jours
      */
-    @Scheduled(cron = "@daily")
+    @Scheduled(cron = "0 0 0/3 * * *")
     @Transactional
     public void updateAttenteInvoicesStatus() {
         log.info("Démarrage de la mise à jour des factures à : " + LocalDateTime.now());
-        int updatedRows = this.invoiceInfoRepository.updateStatusInvoiceForAttenteAtRetard(EStatusInvoice.RETARD);
+        int updatedRows = this.invoiceRepository.updateStatusInvoiceForAttenteAtRetard(EStatusInvoice.RETARD);
         log.info("Nombre de factures mises à jour : " + updatedRows);
     }
 }
