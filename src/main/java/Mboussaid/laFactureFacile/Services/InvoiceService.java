@@ -99,12 +99,22 @@ public class InvoiceService {
                 if (newExpirationDate.isBefore(invoice.getCreationDate())) {
                         return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),
                                         "La date d'expiration de la facture doit être supérieure à la date de création");
-
+                }
+                if (invoice.getStatus() != EStatusInvoice.CREER && invoice.getStatus() != EStatusInvoice.ATTENTE) {
+                        return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),
+                                        "La facture est déjà envoyée, vous ne pouvez pas la modifier");
+                }
+                if (invoice.getStatus() == EStatusInvoice.ATTENTE && invoiceRequest.getStatus() == EStatusInvoice.PAYEE
+                                || invoiceRequest.getStatus() == EStatusInvoice.RETARD) {
+                        invoice.setStatus(invoiceRequest.getStatus());
+                        this.invoiceRepository.save(invoice);
+                        return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
+                                        "La mise à jour de votre facture a ete effectué");
                 }
                 invoice.setExpirationDate(newExpirationDate);
-                Invoice invoiceUpdate = this.invoiceRepository.save(invoice);
-                return CustomResponseEntity.successWithDataDisplayed(HttpStatus.OK.value(),
-                                "La mise à jour de votre facture a ete effectué", invoiceUpdate);
+                this.invoiceRepository.save(invoice);
+                return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
+                                "La mise à jour de votre facture a ete effectué");
         }
 
         public CustomResponseEntity<?> getInvoiceInfoByUser(Integer id) {
