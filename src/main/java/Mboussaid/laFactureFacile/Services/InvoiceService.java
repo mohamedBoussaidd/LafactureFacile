@@ -72,6 +72,10 @@ public class InvoiceService {
         public CustomResponseEntity<?> createInvoice(InvoiceRequest invoiceRequest) throws IOException {
 
                 User currentUser = getCurrentUser();
+                if(currentUser.getFirstname() == null || currentUser.getName() == null || currentUser.getAdresse() == null || currentUser.getCity() == null || currentUser.getPostalcode() == null || currentUser.getSiret() == null || currentUser.getTelephone() == null){
+                        return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
+                                        "Veuillez completer votre profil avant de créer une facture");
+                }
 
                 Invoice invoice = preparInvoice(currentUser, invoiceRequest);
                 File pdfFile = this.pdfService.createPdf(invoice, currentUser);
