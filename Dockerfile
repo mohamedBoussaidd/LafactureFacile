@@ -44,7 +44,7 @@ RUN chown lffappuser:lffusergroup /app/lafacturefacile-0.0.1-SNAPSHOT.jar && \
 USER lffappuser
 
 # Exposer le port sur lequel l'application va tourner et je met une variable d'environnement pour le port
-ENV APP_PORT=8080
+ENV APP_PORT=8081
 EXPOSE $APP_PORT
 
 # Commande pour lancer Spring Boot
