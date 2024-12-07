@@ -6,13 +6,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import Mboussaid.laFactureFacile.DTO.Request.InvoiceForSendEmailRequest;
 import Mboussaid.laFactureFacile.Models.User;
 import Mboussaid.laFactureFacile.Models.Interface.CheckOwnerForData;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import java.lang.reflect.Field;
-
 
 @Aspect
 @Component
@@ -31,15 +31,19 @@ public class OwnerAspect {
         User authenticatedUser = (User) auth.getPrincipal();
 
         Object entity = null;
-        if(resource instanceof Integer){
-
+        if (resource instanceof Integer) {
             Class<?> entityClass = checkOwnerForData.entity();
             Integer resourceId = (Integer) resource;
             entity = entityManager.find(entityClass, (Integer) resourceId);
-        }else{
+        }
+        if (resource instanceof InvoiceForSendEmailRequest) {
+            Class<?> entityClass = checkOwnerForData.entity();
+            Integer resourceId = (Integer) ((InvoiceForSendEmailRequest) resource).id();
+            entity = entityManager.find(entityClass, (Integer) resourceId);
+        } else {
             entity = resource;
         }
-        if(entity == null){
+        if (entity == null) {
             throw new IllegalArgumentException("Ressource introuvable");
         }
 

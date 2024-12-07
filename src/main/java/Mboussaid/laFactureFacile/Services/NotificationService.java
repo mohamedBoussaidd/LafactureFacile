@@ -44,7 +44,7 @@ public class NotificationService {
 
         javaMailSender.send(mail);
 
-        log.info("Email sent to {}", validation.getUser().getEmail());
+        log.info("XXXXXXXXXXXXXXXXXXXXXXXXXXX--------Email sent to {}", validation.getUser().getEmail() +"--------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     }
 
     public void sendNotificationCodeNewPassword(Validation validation) {
@@ -88,7 +88,7 @@ public class NotificationService {
             mail.setText(msg, false);
             mail.addAttachment(file.getFile().getName(), file.getFile());
             this.javaMailSender.send(message);
-            log.info("Email sent to {}", email);
+            log.info("XXXXXXXXXXXXXXXXXXXXXXXXX---Email sent to {}", email + "---XXXXXXXXXXXXXXXXXXXXXXXX");
         } catch (Exception e) {
             log.error("Error sending email: ", e);
         }
