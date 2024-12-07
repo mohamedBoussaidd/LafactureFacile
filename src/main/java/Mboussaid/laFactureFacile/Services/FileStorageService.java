@@ -66,8 +66,9 @@ public class FileStorageService implements FileStorage {
 
     @Override
     public void deleteFile(String fileName) {
+        String targetDir = fileName.contains("TMP") ? tmpUploadDir : uploadDir;
         try {
-            Path filePath = Paths.get(uploadDir, fileName);
+            Path filePath = Paths.get(targetDir, fileName);
             Files.delete(filePath);
         } catch (IOException e) {
             throw new RuntimeException("Erreur lors de la suppression du fichier: " + e.getMessage());

@@ -16,6 +16,7 @@ import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Services.InvoiceService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -60,6 +61,10 @@ public class InvoiceController {
     @PostMapping("relaunchCustomer")
     public CustomResponseEntity<?> relaunchCustomer(@RequestBody InvoiceForSendEmailRequest invoice) {
         return this.invoiceService.relaunchCustomer(invoice);
+    }
+    @DeleteMapping("deleteInvoice/{id}")
+    public CustomResponseEntity<?> deleteInvoice(@PathVariable Integer id) {
+        return this.invoiceService.deleteInvoice(id);
     }
 
 }
