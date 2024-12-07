@@ -137,7 +137,6 @@ public class InvoiceService {
                 }
         }
 
-        // @CheckOwnerForData(entity = Invoice.class, idField = "id")
         public CustomResponseEntity<?> getInvoiceInfoByUser(Integer id) {
                 Optional<User> user = this.userRepository.findById(id);
                 if (user.isEmpty()) {
