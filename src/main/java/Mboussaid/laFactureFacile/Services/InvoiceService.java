@@ -209,6 +209,7 @@ public class InvoiceService {
 
                 File pdfFile = this.pdfService.createPdf(invoiceBdd, invoiceBdd.getUser());
                 fileStorageService.storeFile(pdfFile);
+                fileStorageService.deleteFile(invoiceBdd.getFile().getName());
 
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setName(pdfFile.getName());

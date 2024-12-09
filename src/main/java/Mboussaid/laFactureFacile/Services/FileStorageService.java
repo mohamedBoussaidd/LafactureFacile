@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.Models.Interface.FileStorage;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class FileStorageService implements FileStorage {
 
     @Value("${file.upload-dir}")
@@ -42,6 +44,7 @@ public class FileStorageService implements FileStorage {
             }
             // Copier le fichier
             Files.copy(file.toPath(), filePath);
+            log.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX---Fichier enregistré avec succès !!-----XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
             return CustomResponseEntity.successWithoutDataHidden(HttpStatus.ACCEPTED.value(), "Fichier enregistre !!");
         } catch (IOException e) {
             throw new RuntimeException("Erreur lors de l'enregistrement du fichier: " + e.getMessage());
@@ -70,6 +73,7 @@ public class FileStorageService implements FileStorage {
         try {
             Path filePath = Paths.get(targetDir, fileName);
             Files.delete(filePath);
+            log.info("XXXXXXXXXXXXXXXXXXXXX-----Fichier supprimé avec succès !!------XXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         } catch (IOException e) {
             throw new RuntimeException("Erreur lors de la suppression du fichier: " + e.getMessage());
         }
