@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class InvoiceRequest {
-    
+    public Integer id;
     private String customerName;
     private String customerEmail;
     private String customerAddress;

@@ -41,7 +41,11 @@ public class OwnerAspect {
             Integer resourceId = (Integer) ((InvoiceForSendEmailRequest) resource).id();
             entity = entityManager.find(entityClass, (Integer) resourceId);
         } else {
-            entity = resource;
+            Class<?> entityClass = checkOwnerForData.entity();
+            Field field = resource.getClass().getDeclaredField("id");
+            field.setAccessible(true);
+            Integer resourceId = (Integer) field.get(resource);
+            entity = entityManager.find(entityClass, (Integer) resourceId);
         }
         if (entity == null) {
             throw new IllegalArgumentException("Ressource introuvable");

@@ -75,12 +75,11 @@ CREATE TABLE IF NOT EXISTS "invoice"(
 CREATE TABLE IF NOT EXISTS "items" (
     id SERIAL PRIMARY KEY,
     product_name VARCHAR(200) NOT NULL,
-    price_ht NUMERIC(15,2) NOT NULL,
+    unit_price NUMERIC(15,2) NOT NULL,
+    amount_of_tax NUMERIC(15,2) NOT NULL,
     price_ttc NUMERIC(15,2) NOT NULL,
     tax NUMERIC(5,2) NOT NULL,
     quantity INT NOT NULL,
-    total_ht NUMERIC(15,2) NOT NULL,
-    total_ttc NUMERIC(15,2) NOT NULL,
     description TEXT,
     invoice_id INT NOT NULL,
     CONSTRAINT fk_items_to_invoice FOREIGN KEY (invoice_id) REFERENCES invoice(id) ON DELETE CASCADE

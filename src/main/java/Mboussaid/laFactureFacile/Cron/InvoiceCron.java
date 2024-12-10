@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 
 import Mboussaid.laFactureFacile.Models.Invoice;
 import Mboussaid.laFactureFacile.Models.ENUM.EStatusInvoice;
-import Mboussaid.laFactureFacile.Repository.FileInfoRepository;
 import Mboussaid.laFactureFacile.Repository.InvoiceRepository;
-import Mboussaid.laFactureFacile.Repository.ItemsRepository;
 import Mboussaid.laFactureFacile.Services.FileStorageService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;

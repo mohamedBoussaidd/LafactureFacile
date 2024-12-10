@@ -32,18 +32,16 @@ public class Items {
     private Integer id;
     @Column(name = "product_name", nullable = false)
     private String productName;
-    @Column(name = "price_ht", nullable = false)
-    private BigDecimal priceHT;
+    @Column(name = "unit_price", nullable = false)
+    private BigDecimal unitPrice;
+    @Column(name = "amount_of_tax", nullable = false)
+    private BigDecimal amountOfTaxe;
     @Column(name = "price_ttc", nullable = false)
     private BigDecimal priceTTC;
     @Column(name = "tax", nullable = false)
     private BigDecimal tax;
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
-    @Column(name = "total_ht", nullable = false)
-    private BigDecimal totalHT;
-    @Column(name = "total_ttc", nullable = false)
-    private BigDecimal totalTTC;
     @Column(name = "description")
     private String description;
     @ManyToOne

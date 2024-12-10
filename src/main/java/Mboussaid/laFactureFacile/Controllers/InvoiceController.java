@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceForSendEmailRequest;
-import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.Services.InvoiceService;
 
@@ -46,12 +45,12 @@ public class InvoiceController {
 
     @GetMapping("getInvoiceInfoById/{id}")
     @ResponseBody
-    public CustomResponseEntity<?> getInvoiceInfoByUser(@PathVariable Integer id) {
-        return this.invoiceService.getInvoiceInfoByUser(id);
+    public CustomResponseEntity<?> getInvoiceByUser(@PathVariable Integer id) {
+        return this.invoiceService.getInvoiceByUser(id);
     }
 
     @PostMapping("updateInvoice")
-    public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceInfoRequest invoice) {
+    public CustomResponseEntity<?> updateInvoiceStatus(@RequestBody InvoiceRequest invoice) {
         return this.invoiceService.updateInvoice(invoice);
     }
     @PostMapping("sendInvoice")

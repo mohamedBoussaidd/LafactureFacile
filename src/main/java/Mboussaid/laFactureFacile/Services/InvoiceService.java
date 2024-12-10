@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import Mboussaid.laFactureFacile.DTO.CustomResponseEntity;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceForSendEmailRequest;
-import Mboussaid.laFactureFacile.DTO.Request.InvoiceInfoRequest;
 import Mboussaid.laFactureFacile.DTO.Request.InvoiceRequest;
 import Mboussaid.laFactureFacile.DTO.Response.InvoiceDTO;
 import Mboussaid.laFactureFacile.Models.FileInfo;
@@ -108,11 +107,8 @@ public class InvoiceService {
         }
 
         @CheckOwnerForData(entity = Invoice.class, idField = "id")
-        public CustomResponseEntity<?> updateInvoice(InvoiceInfoRequest invoiceRequest) {
-                if (invoiceRequest.getStatus() == EStatusInvoice.PAYEE) {
-                        return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),
-                                        "La facture est déjà payer , vous ne pouvez pas la modifier");
-                }
+        public CustomResponseEntity<?> updateInvoice(InvoiceRequest invoiceRequest) {
+              
                 Optional<Invoice> optionalInvoice = this.invoiceRepository
                                 .findById(invoiceRequest.getId());
                 if (optionalInvoice.isEmpty()) {
@@ -121,9 +117,13 @@ public class InvoiceService {
                 }
 
                 Invoice invoice = optionalInvoice.get();
+                if (invoice.getStatus() == EStatusInvoice.PAYEE) {
+                        return CustomResponseEntity.error(HttpStatus.FORBIDDEN.value(),
+                                        "La facture est déjà payer , vous ne pouvez pas la modifier");
+                }
 
                 // Validation des dates avec une méthode dédiée
-                if (isInvalidExpirationDate(invoiceRequest.getInvoiceExpirDate(), invoiceRequest.getInvoiceDate(),
+                if (isInvalidExpirationDate(invoiceRequest.getExpirationDate(), invoiceRequest.getCreationDate(),
                                 invoice)) {
                         return CustomResponseEntity.error(
                                         HttpStatus.FORBIDDEN.value(),
@@ -141,7 +141,7 @@ public class InvoiceService {
                 }
         }
 
-        public CustomResponseEntity<?> getInvoiceInfoByUser(Integer id) {
+        public CustomResponseEntity<?> getInvoiceByUser(Integer id) {
                 Optional<User> user = this.userRepository.findById(id);
                 if (user.isEmpty()) {
                         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
@@ -160,6 +160,7 @@ public class InvoiceService {
                                         .invoiceDate(invoice.getCreationDate())
                                         .invoiceExpirDate(invoice.getExpirationDate())
                                         .invoiceAmount(invoice.getAmountTTC().toString())
+                                        .invoiceTax(invoice.getAmountTTC().subtract(invoice.getAmountHT()).toString())
                                         .status(invoice.getStatus())
                                         .build());
                 });
@@ -180,8 +181,8 @@ public class InvoiceService {
         }
 
         @CheckOwnerForData(entity = Invoice.class, idField = "id")
-        public CustomResponseEntity<?> sendInvoice(InvoiceForSendEmailRequest invoiceRequest) throws IOException {
-                Optional<Invoice> optionalInvoice = this.invoiceRepository.findById(invoiceRequest.id());
+        public CustomResponseEntity<?> sendInvoice(InvoiceForSendEmailRequest invoiceForSendEmailRequest) throws IOException {
+                Optional<Invoice> optionalInvoice = this.invoiceRepository.findById(invoiceForSendEmailRequest.id());
                 if (optionalInvoice.isEmpty()) {
                         return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
                                         "Un probleme est survenu lors de l'envoi de la facture");
@@ -195,7 +196,7 @@ public class InvoiceService {
                                 return CustomResponseEntity.error(HttpStatus.BAD_REQUEST.value(),
                                                 "Un probleme est survenu lors de l'envoi de la facture");
                         }
-                        String email = invoiceRequest.email();
+                        String email = invoiceForSendEmailRequest.email();
                         this.notificationService.sendNotificationPdfInvoice(email, file, invoice);
                         return CustomResponseEntity.successWithoutDataDisplayed(HttpStatus.OK.value(),
                                         "La facture a été envoyée avec succès");
@@ -262,10 +263,10 @@ public class InvoiceService {
          * Applique les règles métiers spécifiques pour valider les changements de
          * facture.
          */
-        private boolean applyValidationsAndChanges(Invoice invoice, InvoiceInfoRequest invoiceRequest) {
+        private boolean applyValidationsAndChanges(Invoice invoice, InvoiceRequest invoiceRequest) {
                 ZonedDateTime newExpirationDate = GetDate
-                                .getZonedDateTimeFromString(invoiceRequest.getInvoiceExpirDate());
-                ZonedDateTime newCreationDate = GetDate.getZonedDateTimeFromString(invoiceRequest.getInvoiceDate());
+                                .getZonedDateTimeFromString(invoiceRequest.getExpirationDate());
+                ZonedDateTime newCreationDate = GetDate.getZonedDateTimeFromString(invoiceRequest.getCreationDate());
 
                 if (invoice.getStatus() == EStatusInvoice.CREER
                                 && !invoice.getCreationDate().isEqual(newCreationDate)) {
@@ -342,21 +343,19 @@ public class InvoiceService {
                 }
                 List<Items> items = new ArrayStack<>();
                 invoiceRequest.getItems().forEach(item -> {
+                        BigDecimal taxMultiplier = BigDecimal.valueOf(item.getTax()).divide(BigDecimal.valueOf(100)).add(BigDecimal.ONE);
+                        BigDecimal priceTTC = BigDecimal.valueOf(item.getUnitPrice()).multiply(BigDecimal.valueOf(item.getQuantity())).multiply(taxMultiplier);
                         items.add(Items.builder()
-                                        .productName(item.getDescription())
-                                        .priceHT(BigDecimal.valueOf(item.getPriceHT()))
-                                        .priceTTC(BigDecimal.valueOf(item.getPriceHT() * item.getQuantity()
-                                                        * ((double) item.getTax() / 100 + 1)))
+                                        .productName(item.getProductName())
+                                        .unitPrice(BigDecimal.valueOf(item.getUnitPrice()))
+                                        .priceTTC(priceTTC)
+                                        .amountOfTaxe(priceTTC.subtract(BigDecimal.valueOf(item.getUnitPrice()).multiply(BigDecimal.valueOf(item.getQuantity()))))
                                         .tax(BigDecimal.valueOf(item.getTax()))
                                         .quantity(item.getQuantity())
-                                        .totalHT(BigDecimal.valueOf(item.getPriceHT().doubleValue())
-                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
-                                        .totalTTC(BigDecimal.valueOf(item.getPriceTTC().doubleValue())
-                                                        .multiply(BigDecimal.valueOf(item.getQuantity())))
                                         .invoice(invoice)
                                         .build());
-                        amountTTC = amountTTC.add(new BigDecimal(item.getPriceTTC()));
-                        amountHT = amountHT.add(new BigDecimal(item.getPriceHT()));
+                        amountTTC = amountTTC.add(new BigDecimal(priceTTC.toString()));
+                        amountHT = amountHT.add(new BigDecimal(item.getUnitPrice().toString()).multiply(new BigDecimal(item.getQuantity().toString())));
                 });
                 invoice.setItems(items);
                 invoice.setAmountHT(amountHT);
@@ -374,8 +373,8 @@ public class InvoiceService {
                 fileInfo.setExpirationDate(fileInfo.getCreationDate().plus(10, java.time.temporal.ChronoUnit.DAYS));
                 return fileInfo;
         }
-        private String getNumberInvoice(Invoice invoice, Integer numberOfInvoiceInfo) {
-                Integer realNumber = numberOfInvoiceInfo + 1;
+        private String getNumberInvoice(Invoice invoice, Integer numberInvoice) {
+                Integer realNumber = numberInvoice + 1;
                 String actualDate = new SimpleDateFormat("yyMMdd").format(new Date());
                 String base = invoice.getSellerName().substring(0, 3) + invoice.getCustomerName().substring(0, 3)
                                 + actualDate;

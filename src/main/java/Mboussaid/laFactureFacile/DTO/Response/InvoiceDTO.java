@@ -25,5 +25,6 @@ public class InvoiceDTO {
     private ZonedDateTime invoiceExpirDate;
     private String invoiceAmount;
     private EStatusInvoice status;
+    private String invoiceTax;
 }
 

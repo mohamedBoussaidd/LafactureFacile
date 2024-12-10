@@ -191,7 +191,7 @@ public class PdfService {
                                 .setBackgroundColor(new DeviceRgb(100, 149, 237))
                                 .setBold()
                                 .setFontColor(new DeviceRgb(255, 250, 240)));
-                infoProduit.addCell(new Cell().add(new Paragraph("PRIX/HT"))
+                infoProduit.addCell(new Cell().add(new Paragraph("PRIX/UNITAIRE"))
                                 .setBorderRight(Border.NO_BORDER)
                                 .setBorderLeft(Border.NO_BORDER)
                                 .setTextAlignment(TextAlignment.CENTER)
@@ -221,7 +221,7 @@ public class PdfService {
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
-                        infoProduit.addCell(new Cell().add(new Paragraph("" + formatter.format(item.getPriceHT())))
+                        infoProduit.addCell(new Cell().add(new Paragraph("" + formatter.format(item.getUnitPrice())))
                                         .setBorder(Border.NO_BORDER)
                                         .setTextAlignment(TextAlignment.CENTER)
                                         .setVerticalAlignment(VerticalAlignment.MIDDLE));
